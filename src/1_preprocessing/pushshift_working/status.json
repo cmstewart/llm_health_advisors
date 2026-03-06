@@ -1,0 +1,39 @@
+{
+    "args": "subreddit:AskDocs",
+    "type": "split",
+    "completed_prefixes": [],
+    "files": [
+        [
+            "../../../../data/reddit/comments/RC_2025-10.zst",
+            "pushshift_working/RC_2025-10.zst",
+            true,
+            322613616,
+            0,
+            47344
+        ],
+        [
+            "../../../../data/reddit/comments/RC_2025-11.zst",
+            "pushshift_working/RC_2025-11.zst",
+            true,
+            311247863,
+            0,
+            44613
+        ],
+        [
+            "../../../../data/reddit/comments/RC_2025-12.zst",
+            "pushshift_working/RC_2025-12.zst",
+            true,
+            323740582,
+            0,
+            45993
+        ],
+        [
+            "../../../../data/reddit/comments/RC_2026-01.zst",
+            "pushshift_working/RC_2026-01.zst",
+            true,
+            354266324,
+            0,
+            50045
+        ]
+    ]
+}
