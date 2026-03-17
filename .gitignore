@@ -1,0 +1,35 @@
+# Compressed data archives
+*.zst
+
+# Corpus data (large JSONL files — share via LFS or external storage)
+output/corpora/*.jsonl
+output/corpora/*.csv
+
+# Checkpoints from synthetic generation runs
+output/corpora/checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment / secrets
+.env
+*.env
+.envrc
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+src/1_preprocessing/logs/
+src/1_preprocessing/submission_logs/
