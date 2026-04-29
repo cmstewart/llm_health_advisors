@@ -1,0 +1,6 @@
+# Preprocessing
+zstandard
+tqdm
+
+# Synthetic comment generation (notebook)
+google-genai

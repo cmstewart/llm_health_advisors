@@ -33,3 +33,5 @@ Thumbs.db
 *.log
 src/1_preprocessing/logs/
 src/1_preprocessing/submission_logs/
+Piloting/Round 2/submissions_corpus.jsonl
+Piloting/Round 2/comments_corpus.jsonl
