@@ -4,15 +4,15 @@ This round generates synthetic **clinician** comments for r/AskDocs opening post
 
 ## Why this round differs from Round 3
 
-The central change is a shift to an **AI vs. verified-clinician** comparison. While preparing this round we discovered that genuine layperson responses barely exist in the corpus. Of the ~5,900 comments carrying the "Layperson/not verified" flair, roughly 5,160 are the OP replying to their own thread and ~440 are bot/moderator messages. Only about 300 genuine human layperson comments remain across the entire 40,537-comment corpus. This is a consequence of how r/AskDocs works: it is built around verified professionals answering, and moderators remove layperson answers, so the "layperson" flair mostly tags the people *asking* questions rather than answering them. We therefore dropped the layperson arm and generate all synthetic comments in a clinician voice.
+The central change is a shift to an **AI vs. verified-clinician** comparison. While preparing this round we discovered that genuine layperson responses barely exist in the corpus. Of the ~5,900 comments carrying the "Layperson/not verified" flair, roughly 5,160 are the OP replying to their own thread and ~440 are bot/moderator messages. Only about 300 genuine human layperson comments remain across the entire 40,537-comment corpus. This is a consequence of how r/AskDocs works in that it is built around verified professionals answering, and moderators remove layperson answers, so the "layperson" flair mostly tags the people *asking* questions rather than answering them. We therefore dropped the layperson arm and generate all synthetic comments in a clinician voice.
 
 Specific changes from Round 3:
 
-- **Clinician-only generation.** All layperson logic was removed from the prompt builders and generation functions. Each OP receives *n* synthetic clinician comments, where *n* matches the number of real (non-self) top-level comments in the thread.
-- **Empathy instruction removed.** The prompt no longer tells clinicians to show empathy, i.e. the model decides the level of empathy itself.
-- **Self-posts filtered.** Top-level comments written by the OP (matched by username) are removed, since these are the poster following up on their own thread rather than genuine responses.
-- **Image OPs excluded.** Submissions that embed or link an image (detected via Reddit's `preview` object or an image URL/extension in the body) are dropped, leaving text-only threads.
-- **Keyword/topic filter removed.** Round 3 required health-related terms in the title or body. That filter is gone. The pool is now every image-free OP with at least one real comment (**12,464 OPs**).
+- **Clinician-only generation:** All layperson logic was removed from the prompt builders and generation functions. Each OP receives *n* synthetic clinician comments, where *n* matches the number of real (non-self) top-level comments in the thread.
+- **Empathy instruction removed:** The prompt no longer tells clinicians to show empathy, i.e. the model decides the level of empathy itself.
+- **Self-posts filtered:** Top-level comments written by the OP (matched by username) are removed, since these are the poster following up on their own thread rather than genuine responses.
+- **Image OPs excluded:** Submissions that embed or link an image (detected via Reddit's `preview` object or an image URL/extension in the body) are dropped, leaving text-only threads.
+- **Keyword/topic filter removed:** Round 3 required health-related terms in the title or body. That filter is gone. The pool is now every image-free OP with at least one real comment (**12,464 OPs**).
 
 ## Prompting strategies
 
