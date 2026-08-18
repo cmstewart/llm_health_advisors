@@ -49,7 +49,7 @@ the question-mark proxy with the actual measure.
 
 - `generate_synthetic.py` — multi-model generation across all three strategies
 - `build_analysis_dataset.py` — merges corpus and generated output into one analysis file
-- `4_exploratory_analysis.ipynb` — the analysis above, with outputs
+- `5_exploratory_analysis.ipynb` — the analysis above, with outputs
 - `GENERATION.md` — full usage documentation for the generation script
 
 ## Data
