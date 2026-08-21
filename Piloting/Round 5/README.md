@@ -26,19 +26,19 @@ comment seeing all prior ones.
 
 ## Findings
 
-**Real clinicians ask questions; models explain!** 23.3% of real comments contain a question,
+**Real clinicians ask questions; models explain:** 23.3% of real comments contain a question,
 vs. 0.8% to 7.4% for every model and every strategy, a gap of 3x-27x. Question rate is
 a crude proxy for the EPITOME *Explorations* mechanism, which was the one measure that
 separated real from synthetic in the Round 4 pilot. It replicates here at roughly 75x the
 sample size.
 
-**The gap is not a length artifact** Within matched length, the distinction actually widens.
+**The gap is not a length artifact:** Within matched length, the distinction actually widens.
 Real comments ask *more* questions as they get longer (18.5% under 25 words, rising to 34.9% 
 above 100), while synthetic comments ask *fewer* (Gemini falls from 14.4% to 1.1%). At 50 
 to 100 words the comparison is 27.1% real against 0.3% to 2.6% synthetic. While human 
 clinicians spend extra words inquiring, LLMs appear to spend them explaining.
 
-**Models differ in verbosity but none reproduce real variance** GPT-5 writes about 86 words
+**Models differ in verbosity but none reproduce real variance:** GPT-5 writes about 86 words
 per comment to Gemini's and Grok's 32. Real comments have a median of 34 but a standard
 deviation of 64.7, against 8 to 28 for the models.
 
@@ -86,11 +86,11 @@ SDKs.
 
 Notes:
 
-- **Reasoning effort matters for cost!!!** GPT-5 and Grok bill hidden reasoning tokens as
+- **Reasoning effort matters for cost:** GPT-5 and Grok bill hidden reasoning tokens as
   output. Setting `low` cut the projected spend from roughly $450 to $153.
-- **Concurrency above ~10 was unstable** in testing, producing heap corruption in the async
+- **Concurrency above ~10 was unstable:** in testing, producing heap corruption in the async
   HTTP stack. 10 is the tested ceiling.
-- **Runs resume** Progress is checkpointed per model and strategy after every thread, so
+- **Runs resume:** Progress is checkpointed per model and strategy after every thread, so
   re-running the same command skips completed work.
 - **Model IDs drift** Verify them against each provider's current list and override with
   `--model-id` rather than editing the file.
