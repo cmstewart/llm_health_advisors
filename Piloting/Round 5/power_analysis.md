@@ -9,14 +9,14 @@ order of magnitude, as are all three interaction tests.
 Two-proportion power calculations on P(label = 2), the quantity the binomial mixed models
 estimate for Interpretations and Explorations. Emotional Reactions is collapsed to
 P(label >= 1). Real and synthetic groups are unequal (3,882 vs 6,475 per cell, ratio 1.67),
-which is handled explicitly. Target is 80% power.
+which is handled explicitly. Our target is the standard 80% power.
 
 Because the report runs 27 real-vs-synthetic contrasts, two thresholds are reported: the
 nominal α = 0.05, and a Bonferroni-conservative α = 0.05/27 = 0.0019 standing in for the
-Benjamini-Hochberg correction actually used. BH is less strict than Bonferroni, so the
+Benjamini-Hochberg (BH) correction actually used. BH is less strict than Bonferroni, so the
 truth sits between the two columns and closer to the nominal one.
 
-## Result 1: required sample per mechanism
+## Result 1: Required sample per mechanism
 
 Binding (hardest) contrast in each mechanism, at the conservative threshold:
 
@@ -30,7 +30,7 @@ Explorations and Emotional Reactions were adequately powered at a *twentieth* of
 sample. This is consistent with Pilot 1, where Explorations was the one mechanism that
 survived correction on 87 comments per group.
 
-## Result 2: interaction tests are fine
+## Result 2: Interaction tests are fine
 
 Scaling the observed non-centrality (λ ≈ χ² − df) linearly with n:
 
@@ -43,7 +43,7 @@ Scaling the observed non-centrality (λ ≈ χ² − df) linearly with n:
 The model × method interaction, usually the most data-hungry term, is comfortably powered.
 More data is not needed to support claims about prompting strategy differing by model.
 
-## Result 3: where the current sample is thin
+## Result 3: Where the current sample is thin
 
 Achieved power for Interpretations, the only mechanism with a problem:
 
@@ -67,7 +67,7 @@ in the report.
 
 ## Recommendation
 
-Scaling is justified, but the target is **~6,600 OPs, not 12,464**. That is what brings the
+We should scale up the sample, but only to **~6,600 OPs, not 12,464**. That is what brings the
 binding contrast (`grok_dg`) to 80% power under conservative correction. Beyond that, every
 additional OP buys precision on effects that are already resolved.
 
@@ -83,17 +83,17 @@ The middle option costs about 40% of the full run and resolves the only genuine 
 
 ## Caveats
 
-- **These are unadjusted two-proportion tests; the actual analysis is a mixed model** with a
+- **These are unadjusted two-proportion tests and the actual analysis is a mixed model:** With a
   log(length) covariate and a by-post random intercept. The covariate generally increases
   precision, clustering decreases it. With 1.3 real and 2.2 synthetic comments per post the
   design effect is small (roughly 1.1 at ICC = 0.1), so the ballpark holds, but these are
   approximations rather than exact power for the fitted models.
-- **The Grok Interpretations reversal is length-adjusted.** In raw proportions `grok_dg` is
-  *lower* than real (0.087 vs 0.103); it only exceeds real once length is controlled. The
-  power calculation above uses raw proportions, so it addresses the precision of the
-  contrast rather than the stability of the sign flip. That flip is worth probing directly
+- **The Grok Interpretations reversal is length-adjusted:** In raw proportions `grok_dg` is
+  *lower* than real comments (0.087 vs 0.103). It only exceeds real posts once length is
+  controlled. The power calculation above uses raw proportions, so it addresses the precision
+  of the contrast rather than the stability of the sign flip. That flip is worth probing directly
   regardless of sample size.
-- **Significance was the stated criterion here.** No smallest-effect-of-interest threshold
+- **Significance was the stated criterion here:** No smallest-effect-of-interest threshold
   was applied. Several contrasts that are comfortably powered describe differences of two
   or three percentage points, and a reviewer may reasonably ask whether those are
   substantively meaningful even though they are statistically unambiguous.
