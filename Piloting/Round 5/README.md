@@ -47,10 +47,25 @@ the question-mark proxy with the actual measure.
 
 ## Files
 
-- `generate_synthetic.py` — multi-model generation across all three strategies
-- `build_analysis_dataset.py` — merges corpus and generated output into one analysis file
 - `5_exploratory_analysis.ipynb` — the analysis above, with outputs
-- `GENERATION.md` — full usage documentation for the generation script
+- `build_analysis_dataset.py` — merges corpus and generated output into one analysis file
+- `build_review_spreadsheet.py` — builds a per-thread review spreadsheet for manual reading
+- `ramp_up_6600/` — the decision and code for extending the sample (see below)
+
+## Ramping up to 6,600 threads
+
+`ramp_up_6600/` holds the sample size analysis and the tooling to extend the run:
+
+- `power_analysis.md` — why 6,600 rather than stopping at 3,000 or going to the full corpus
+- `SCALEUP_6600.md` — step-by-step runbook for the incremental generation
+- `generate_synthetic.py` — the generation script (this is the current version; it supersedes
+  the copy previously at this level)
+
+In short: Explorations and Emotional Reactions were adequately powered at a twentieth of the
+current sample, and all three interaction tests are comfortably powered. Three Interpretations
+contrasts are not, sitting at 0.33, 0.51 and 0.60 power under multiplicity correction. 6,600
+threads brings them above 0.80 for roughly $185; the full 12,464 would cost ~$490 and buy
+precision on effects that are already resolved.
 
 ## Data
 
@@ -67,14 +82,16 @@ python build_analysis_dataset.py --gzip
 
 ## Reproducing the generation
 
+The script lives in `ramp_up_6600/`.
+
 ```bash
 pip install openai tqdm
 export GEMINI_API_KEY=...  OPENAI_API_KEY=...  OPENROUTER_API_KEY=...
 
 # Always estimate first: prints workload and cost, makes no API calls
-python generate_synthetic.py --dry-run --n-ops 3000
+python ramp_up_6600/generate_synthetic.py --dry-run --n-ops 3000
 
-python generate_synthetic.py \
+python ramp_up_6600/generate_synthetic.py \
   --n-ops 3000 --models gemini,openai,grok \
   --reasoning-effort openai=low --reasoning-effort grok=low \
   --concurrency 10
@@ -92,7 +109,12 @@ Notes:
   HTTP stack. 10 is the tested ceiling.
 - **Runs resume:** Progress is checkpointed per model and strategy after every thread, so
   re-running the same command skips completed work.
+- **Failed threads are not checkpointed:** if every call for a thread fails, usually because
+  credits ran out, it is counted as skipped and left for the next run rather than written
+  with empty comments.
 - **Model IDs drift** Verify them against each provider's current list and override with
   `--model-id` rather than editing the file.
 
-Set `--n-ops 0` to run the full 12,464-thread corpus.
+Raising `--n-ops` extends an existing run rather than replacing it: the 3,000-thread sample is
+a strict subset of the 6,600-thread sample at seed 42, so completed threads are skipped. Set
+`--n-ops 0` for the full 12,464-thread corpus.
