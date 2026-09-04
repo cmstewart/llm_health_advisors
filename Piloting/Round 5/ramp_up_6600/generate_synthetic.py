@@ -16,6 +16,8 @@ Design notes:
   * SAG  : n independent calls per OP         -> parallel within AND across OPs
   * SAGII: n sequential calls per OP          -> sequential within, parallel across OPs
   * Checkpointed per (model, strategy) as JSONL. Re-running skips completed OPs.
+  * Empty responses (message.content is None) are not retried and their
+    finish_reason is tallied -- see call_model().
 
 Usage
 -----
@@ -317,8 +319,13 @@ class Usage:
     calls: int = 0
     failures: int = 0
     skipped: int = 0  # OPs left unwritten because every call failed
+    empty: int = 0    # responses that came back with no content at all
     tokens_in: int = 0
     tokens_out: int = 0
+    # Tally of finish_reason values seen on empty responses, e.g.
+    # {"content_filter": 812, "length": 44}. This is what tells you whether the
+    # model is refusing or running out of output budget.
+    finish_reasons: dict = field(default_factory=dict)
 
 
 async def call_model(
@@ -332,7 +339,7 @@ async def call_model(
 ) -> list[dict]:
     """
     Send one prompt, parse a JSON object of the form {"comments": [...]}.
-    Returns a list of comment dicts, truncated to n_expected. On total failure
+    Returns a list of comment dicts, truncated to n_expected. On failure
     returns [] and the caller records placeholders.
     """
     kwargs = {
@@ -353,7 +360,20 @@ async def call_model(
                 usage.tokens_in += resp.usage.prompt_tokens or 0
                 usage.tokens_out += resp.usage.completion_tokens or 0
 
-            payload = json.loads(resp.choices[0].message.content)
+            # A well-formed response can still carry no content: the model refused
+            # (finish_reason "content_filter") or spent its whole output budget on
+            # reasoning (finish_reason "length"). Retrying is pointless -- every
+            # attempt sends a byte-identical prompt, so the outcome reproduces --
+            # and each retry is still a billed call. Record why and return.
+            choice = resp.choices[0]
+            content = getattr(choice.message, "content", None)
+            if content is None or not content.strip():
+                reason = getattr(choice, "finish_reason", None) or "unknown"
+                usage.empty += 1
+                usage.finish_reasons[reason] = usage.finish_reasons.get(reason, 0) + 1
+                return []
+
+            payload = json.loads(content)
             # Accept {"comments": [...]} or a bare [...] just in case.
             items = payload.get("comments") if isinstance(payload, dict) else payload
             if not isinstance(items, list):
@@ -501,6 +521,10 @@ async def run_model_strategy(
             pbar.close()
         await client.close()
 
+    if usage.empty:
+        detail = ", ".join(f"{k}={v:,}" for k, v in sorted(usage.finish_reasons.items()))
+        print(f"  empty responses: {usage.empty:,}  (finish_reason: {detail})")
+
     return usage
 
 
@@ -610,8 +634,11 @@ async def main_async(args) -> None:
             agg.calls += u.calls
             agg.failures += u.failures
             agg.skipped += u.skipped
+            agg.empty += u.empty
             agg.tokens_in += u.tokens_in
             agg.tokens_out += u.tokens_out
+            for k, v in u.finish_reasons.items():
+                agg.finish_reasons[k] = agg.finish_reasons.get(k, 0) + v
         totals[m] = agg
 
     elapsed = time.time() - started
@@ -623,10 +650,27 @@ async def main_async(args) -> None:
         grand += cost
         print(
             f"  {m:<8} {u.calls:>7,} calls  {u.failures:>5,} failed  "
-            f"{u.skipped:>5,} skipped  "
+            f"{u.empty:>5,} empty  {u.skipped:>5,} skipped  "
             f"{u.tokens_in/1e6:>6.1f}M in  {u.tokens_out/1e6:>5.1f}M out  ~${cost:,.2f}"
         )
     print(f"  {'TOTAL':<8} ~${grand:,.2f} (actual, from reported token usage)")
+
+    for m, u in totals.items():
+        if u.finish_reasons:
+            detail = ", ".join(f"{k}={v:,}" for k, v in sorted(u.finish_reasons.items()))
+            print(f"\n{m} empty-response finish_reason: {detail}")
+            if "content_filter" in u.finish_reasons:
+                print(
+                    "  'content_filter' means the model declined to answer. That is a\n"
+                    "  property of the model and the prompt, not a bug; re-running will\n"
+                    "  not recover those threads and the refusal rate is worth reporting."
+                )
+            if "length" in u.finish_reasons:
+                print(
+                    "  'length' means the output budget was exhausted, typically by\n"
+                    "  reasoning tokens. Raising max_tokens or lowering reasoning effort\n"
+                    "  should recover those."
+                )
 
     if any(u.skipped for u in totals.values()):
         print(
