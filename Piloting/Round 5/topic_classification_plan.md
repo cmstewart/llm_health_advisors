@@ -44,7 +44,7 @@ across 17 disciplines is underpowered regardless.
 
 ## Validation and cost
 
-We san hand-code 200 random OPs before seeing any automated output, ideally two coders. 
+We can hand-code 200 random OPs before seeing any automated output, ideally two coders. 
 We should report precision, recall, and inter-annotator agreement as the ceiling on automated
 performance. Also, we will publish prompts and adjudication decisions.
 
