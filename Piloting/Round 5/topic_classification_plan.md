@@ -1,33 +1,34 @@
-# Plan: Topic Classification of Opening Posts
+# Topic Classification of Opening Posts
 
-Labelling the 6,600 threads by subject matter, to describe the corpus and to test whether
-the real-vs-synthetic empathy gap varies by topic. Nothing here has been run.
+The goal is to label the 6,600 threads by subject matter, to describe the corpus and to 
+test whether the real-vs-synthetic empathy gap varies by topic. Nothing here has been run.
 
 ## Approach
 
-Topic models are unsupervised: BERTopic finds whatever structure exists, and cannot be asked
-for a category we have in mind. So wherever we have a hypothesis in advance, that is a
-classification problem, not a discovery problem.
+Topic models are typically unsupervised. For example, BERTopic finds whatever structure 
+exists, and cannot be asked for a category that we have in mind. Wherever we have a 
+hypothesis in advance, that is a classification problem suitable for a supervised approach.
 
-1. **Fixed taxonomy, LLM-classified.** Primary. Use the 17 disciplines from the
-   [JMIR Reddit health taxonomy](https://formative.jmir.org/2025/1/e55309) rather than
-   inventing one; its 82 finer topics would be too sparse at this n. LLM picks from the
-   fixed list plus "other", never generating freely.
-2. **Targeted flags, dual-labelled.** For any pre-specified category. Labeller A is an LLM
-   with a published definition, returning `{label, confidence, evidence_quote}`. Labeller B
-   is [scispaCy](https://github.com/allenai/scispacy) entity linking to the relevant MeSH
-   tree or UMLS semantic type. Agreement gives a confident label; disagreements and
-   low-confidence cases go to manual coding. Report kappa.
-3. **BERTopic once**, as a coverage check on whether the fixed taxonomy misses real
-   structure. Diagnostic, not instrument.
+1. **Fixed taxonomy, LLM-classified** This will be our primary approach. We can use the 17
+   disciplines from the [JMIR Reddit health taxonomy](https://formative.jmir.org/2025/1/e55309).
+   Its 82 finer topics would be too sparse at this `n`, so we let an LLM pick from the fixed list
+   plus "other", never generating freely.
+3. **Targeted flags, dual-labelled.** We can use this for any pre-specified category, e.g. cancer
+   vs. other disease. Labeller A is an LLM with a published definition, returning
+   `{label, confidence, evidence_quote}`. Labeller B is a
+   [scispaCy](https://github.com/allenai/scispacy) entity linking to the relevant MeSH tree or
+   UMLS semantic type. Agreement gives a confidence value. Disagreements and low-confidence
+   cases go to manual coding. We can report kappa to quantify agreement.
+5. **Use BERTopic once** as a coverage check on whether the fixed taxonomy misses real
+   structure. This would be diagnostic in nature.
 
-Keyword matching alone is not viable: spot checks show the signal often sits in the post
-body rather than the title, mixed with false positives.
+Keyword matching alone is not viable as spot checks show the signal often sits in the post
+body rather than the title and there is a lot of potential for false positives.
 
 ## Feasibility by prevalence
 
-Using pilot 2 Explorations proportions (real 0.191, synthetic 0.073, gap 11.8 pp), smallest
-moderation detectable at 80% power:
+Using pilot 2 Explorations proportions (real 0.191, synthetic 0.073, gap 11.8 pp), the 
+smallest moderation detectable at 80% power:
 
 | Prevalence | Threads | Min. detectable moderation |
 |---|---|---|
@@ -43,9 +44,9 @@ across 17 disciplines is underpowered regardless.
 
 ## Validation and cost
 
-Hand-code 200 random OPs before seeing any automated output, ideally two coders. Report
-precision, recall, and inter-annotator agreement as the ceiling on automated performance.
-Publish prompts and adjudication decisions.
+We san hand-code 200 random OPs before seeing any automated output, ideally two coders. 
+We should report precision, recall, and inter-annotator agreement as the ceiling on automated
+performance. Also, we will publish prompts and adjudication decisions.
 
 Compute is ~$7 and an afternoon. The hand-coding is the real cost, and what makes it
 publishable.
