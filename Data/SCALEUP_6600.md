@@ -53,19 +53,19 @@ gcloud compute ssh askdocs-gen --zone=us-central1-a --command="mkdir -p ~/corpor
 
 ### 2. Upload script, corpus, and existing checkpoints
 
-From your local `src/`:
+From your local `Data/`:
 
 ```bash
 gcloud compute scp --zone=us-central1-a generate_synthetic.py askdocs-gen:~/
 
 gcloud compute scp --zone=us-central1-a \
-  ../output/corpora/submissions_corpus.jsonl \
-  ../output/corpora/comments_corpus.jsonl \
+  "../Piloting/Round 5/output/corpora/submissions_corpus.jsonl" \
+  "../Piloting/Round 5/output/corpora/comments_corpus.jsonl" \
   askdocs-gen:~/corpora/
 
 # The checkpoints. Skipping this step costs you ~$150 in regenerated work.
 gcloud compute scp --zone=us-central1-a \
-  ../output/corpora/generated/*.jsonl \
+  "../Piloting/Round 5/output/corpora/generated/"*.jsonl \
   askdocs-gen:~/generated/
 ```
 
@@ -139,13 +139,17 @@ print('TOTAL defective:', t)
 Nine files at 6,600 records each. Then, from your Mac:
 
 ```bash
-gcloud compute scp --recurse --zone=us-central1-a askdocs-gen:~/generated ../output/corpora/
+gcloud compute scp --recurse --zone=us-central1-a askdocs-gen:~/generated "../Piloting/Round 5/output/corpora/"
 gcloud compute instances delete askdocs-gen --zone=us-central1-a
 ```
 
 ### 7. Rebuild the analysis inputs
 
+These two scripts live in `Piloting/Round 5/` and read their paths relative to that
+directory, so run them from there:
+
 ```bash
+cd "../Piloting/Round 5"   # from Data/
 python build_analysis_dataset.py --gzip
 python build_review_spreadsheet.py --n-ops 10
 ```

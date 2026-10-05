@@ -686,9 +686,9 @@ def parse_args(argv=None):
         description="Generate synthetic r/AskDocs clinician comments across models.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    p.add_argument("--corpora-dir", default="../output/corpora",
+    p.add_argument("--corpora-dir", default="../Piloting/Round 5/output/corpora",
                    help="directory holding submissions_corpus.jsonl / comments_corpus.jsonl")
-    p.add_argument("--out-dir", default="../output/corpora/generated",
+    p.add_argument("--out-dir", default="../Piloting/Round 5/output/corpora/generated",
                    help="where per-(model,strategy) JSONL checkpoints are written")
     p.add_argument("--models", default="gemini,openai,grok",
                    help="comma-separated: gemini,openai,grok")

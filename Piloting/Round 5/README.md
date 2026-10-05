@@ -50,11 +50,12 @@ the question-mark proxy with the actual measure.
 - `5_exploratory_analysis.ipynb` — the analysis above, with outputs
 - `build_analysis_dataset.py` — merges corpus and generated output into one analysis file
 - `build_review_spreadsheet.py` — builds a per-thread review spreadsheet for manual reading
-- `ramp_up_6600/` — the decision and code for extending the sample (see below)
+- `Data/` (at the repository root) — the decision and code for extending the sample (see below)
 
 ## Ramping up to 6,600 threads
 
-`ramp_up_6600/` holds the sample size analysis and the tooling to extend the run:
+`Data/` at the repository root holds the sample size analysis and the tooling to extend the
+run (it was previously `ramp_up_6600/` at this level):
 
 - `power_analysis.md` — why 6,600 rather than stopping at 3,000 or going to the full corpus
 - `SCALEUP_6600.md` — step-by-step runbook for the incremental generation
@@ -82,16 +83,19 @@ python build_analysis_dataset.py --gzip
 
 ## Reproducing the generation
 
-The script lives in `ramp_up_6600/`.
+The script lives in `Data/` at the repository root. Its default `--corpora-dir` and
+`--out-dir` are relative to that directory, so run it from there.
 
 ```bash
 pip install openai tqdm
 export GEMINI_API_KEY=...  OPENAI_API_KEY=...  OPENROUTER_API_KEY=...
 
-# Always estimate first: prints workload and cost, makes no API calls
-python ramp_up_6600/generate_synthetic.py --dry-run --n-ops 3000
+cd Data   # from the repository root
 
-python ramp_up_6600/generate_synthetic.py \
+# Always estimate first: prints workload and cost, makes no API calls
+python generate_synthetic.py --dry-run --n-ops 3000
+
+python generate_synthetic.py \
   --n-ops 3000 --models gemini,openai,grok \
   --reasoning-effort openai=low --reasoning-effort grok=low \
   --concurrency 10
