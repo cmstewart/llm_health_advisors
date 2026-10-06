@@ -288,6 +288,29 @@ def load_from_analysis_dataset(path: Path) -> list[dict]:
     return ops
 
 
+def apply_limit(ops: list[dict], limit: int) -> list[dict]:
+    """
+    Keep the first `limit` OPs by id, for a pilot run.
+
+    Why not just pass a smaller --n-ops: select_sample calls random.sample, and
+    random.sample switches algorithm on k. At n=12,464 both k=3,000 and k=6,600
+    take the pool-based branch and share a draw prefix, which is why the Round 5
+    3,000-OP sample really is a strict subset of the 6,600-OP one. A small k such
+    as 100 takes the set-based branch instead and is NOT a subset: it re-samples,
+    and lands on OPs outside the analysis set.
+
+    Truncating after the selection sidesteps that entirely. The pilot set is a
+    strict subset by construction, its labels are checkpointed under the same
+    filenames, and the full run skips them on resume.
+    """
+    if limit <= 0 or limit >= len(ops):
+        return ops
+    ordered = sorted(ops, key=lambda o: o["id"])[:limit]
+    print(f"--limit {limit}: pilot subset of {len(ordered):,} OPs "
+          "(strict subset of the full run; resuming later skips these)")
+    return ordered
+
+
 def load_from_corpus(corpora_dir: Path, n_ops: int, seed: int) -> list[dict]:
     eligible, _ = load_corpus(corpora_dir)
     sample = select_sample(eligible, n_ops, seed)
@@ -701,6 +724,7 @@ async def main_async(args) -> None:
         ops = load_from_corpus(Path(args.corpora_dir), args.n_ops, args.seed)
     if not ops:
         sys.exit("ERROR: no OPs selected.")
+    ops = apply_limit(ops, args.limit)
 
     # The discipline task cannot run against a taxonomy that is still placeholders:
     # the model would be offered "<TODO 05 of 17: ...>" as a category.
@@ -802,8 +826,15 @@ def parse_args(argv=None):
                    help="number of OPs when sampling from the corpus; 0 means all")
     p.add_argument("--seed", type=int, default=42,
                    help="sampling seed; must match the generation run")
-    p.add_argument("--concurrency", type=int, default=25,
-                   help="max in-flight API requests")
+    p.add_argument("--limit", type=int, default=0,
+                   help="after the seeded selection, keep only the first N OPs by id. "
+                        "This is how to run a pilot: the subset is a strict subset of "
+                        "the full run by construction (unlike a smaller --n-ops, which "
+                        "re-samples), so pilot labels are reused and skipped on resume")
+    p.add_argument("--concurrency", type=int, default=10,
+                   help="max in-flight API requests. 10 is the tested ceiling: above "
+                        "~10 the Round 5 generation run hit heap corruption in the "
+                        "async HTTP stack (see Piloting/Round 5/README.md)")
     p.add_argument("--model-id", action="append", metavar="NAME=ID",
                    help="override a model id, e.g. --model-id gemini=gemini-2.5-pro")
     p.add_argument("--reasoning-effort", action="append", metavar="NAME=LEVEL",

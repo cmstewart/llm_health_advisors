@@ -290,6 +290,8 @@ def main() -> None:
                     help="minimum linker score for a concept to count")
     ap.add_argument("--batch-size", type=int, default=32)
     ap.add_argument("--n-ops", type=int, default=6600)
+    ap.add_argument("--limit", type=int, default=0,
+                    help="after the seeded selection, keep only the first N OPs by id; use the same value as classify_topics.py so both labellers cover the same pilot subset")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--self-test", action="store_true",
                     help="run on five built-in posts and print the labels, to check "
@@ -314,6 +316,12 @@ def main() -> None:
         return
 
     ops = load_ops(args)
+    # Same truncation rule as classify_topics.apply_limit, so labeller B
+    # covers exactly the OPs labeller A did and the kappa is not computed
+    # over a lopsided overlap.
+    if args.limit > 0:
+        from classify_topics import apply_limit
+        ops = apply_limit(ops, args.limit)
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "labels_scispacy_cancer.jsonl"
