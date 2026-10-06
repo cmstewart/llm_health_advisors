@@ -72,8 +72,8 @@ def select(records: list[dict], n: int, seed: int) -> list[dict]:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data", default="../output/corpora/analysis_dataset.jsonl")
-    ap.add_argument("--out", default="../output/corpora/review_sample.xlsx")
+    ap.add_argument("--data", default="output/corpora/analysis_dataset.jsonl")
+    ap.add_argument("--out", default="output/corpora/review_sample.xlsx")
     ap.add_argument("--n-ops", type=int, default=10)
     ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()

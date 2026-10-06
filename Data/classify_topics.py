@@ -785,7 +785,7 @@ def parse_args(argv=None):
     p.add_argument("--from-analysis-dataset", default=None, metavar="PATH",
                    help="read the OP set from the analysis dataset (exact id match; "
                         "preferred over re-deriving it)")
-    p.add_argument("--corpora-dir", default="../Piloting/Round 5/output/corpora",
+    p.add_argument("--corpora-dir", default="../Piloting/Round 2",
                    help="used when --from-analysis-dataset is not given")
     p.add_argument("--out-dir", default="../Piloting/Round 5/output/corpora/labels",
                    help="where label checkpoints are written")

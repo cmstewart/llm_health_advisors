@@ -54,9 +54,9 @@ def has_image(sub: dict) -> bool:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--corpora-dir", default="../output/corpora")
-    ap.add_argument("--generated-dir", default="../output/corpora/generated")
-    ap.add_argument("--out", default="../output/corpora/analysis_dataset.jsonl")
+    ap.add_argument("--corpora-dir", default="../Round 2")
+    ap.add_argument("--generated-dir", default="output/corpora/generated")
+    ap.add_argument("--out", default="output/corpora/analysis_dataset.jsonl")
     ap.add_argument("--gzip", action="store_true", help="also write a gzipped copy")
     args = ap.parse_args()
 

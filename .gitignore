@@ -7,6 +7,10 @@ output/corpora/*.csv
 
 # Checkpoints from synthetic generation runs
 output/corpora/checkpoints/
+output/corpora/generated/
+
+# Topic classification output (labels, consensus, manual-coding queue)
+output/corpora/labels/
 
 # Python
 __pycache__/

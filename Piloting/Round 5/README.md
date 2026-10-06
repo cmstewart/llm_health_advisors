@@ -83,8 +83,9 @@ python build_analysis_dataset.py --gzip
 
 ## Reproducing the generation
 
-The script lives in `Data/` at the repository root. Its default `--corpora-dir` and
-`--out-dir` are relative to that directory, so run it from there.
+The script lives in `Data/` at the repository root. Its defaults are relative to that
+directory -- the corpus is read from `Piloting/Round 2/`, and output is written under
+`Piloting/Round 5/output/corpora/` -- so run it from there.
 
 ```bash
 pip install openai tqdm

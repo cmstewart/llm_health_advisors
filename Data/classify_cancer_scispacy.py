@@ -279,7 +279,7 @@ def main() -> None:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     ap.add_argument("--from-analysis-dataset", default=None, metavar="PATH")
-    ap.add_argument("--corpora-dir", default="../Piloting/Round 5/output/corpora")
+    ap.add_argument("--corpora-dir", default="../Piloting/Round 2")
     ap.add_argument("--out-dir", default="../Piloting/Round 5/output/corpora/labels")
     ap.add_argument("--spacy-model", default="en_core_sci_sm",
                     help="en_core_sci_sm is enough for entity spans; en_core_sci_md "

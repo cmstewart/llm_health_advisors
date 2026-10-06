@@ -20,7 +20,7 @@ OPs are skipped.
 1. **Top up Gemini credits.** This is what failed last time, 675 calls deep into SAGII.
    Budget ~$40 at [ai.studio](https://ai.studio/projects).
 2. **Confirm OpenRouter and OpenAI balances.** Roughly $50 and $100 respectively.
-3. **Locate your existing checkpoints.** `output/corpora/generated/*.jsonl`, nine files of
+3. **Locate your existing checkpoints.** `Piloting/Round 5/output/corpora/generated/*.jsonl`, nine files of
    3,000 records each. These must go onto the VM or the run will regenerate work you have
    already paid for.
 
@@ -59,8 +59,8 @@ From your local `Data/`:
 gcloud compute scp --zone=us-central1-a generate_synthetic.py askdocs-gen:~/
 
 gcloud compute scp --zone=us-central1-a \
-  "../Piloting/Round 5/output/corpora/submissions_corpus.jsonl" \
-  "../Piloting/Round 5/output/corpora/comments_corpus.jsonl" \
+  "../Piloting/Round 2/submissions_corpus.jsonl" \
+  "../Piloting/Round 2/comments_corpus.jsonl" \
   askdocs-gen:~/corpora/
 
 # The checkpoints. Skipping this step costs you ~$150 in regenerated work.
