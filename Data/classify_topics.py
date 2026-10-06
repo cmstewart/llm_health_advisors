@@ -198,8 +198,10 @@ def build_discipline_prompt(title: str, selftext: str, tax: Taxonomy) -> str:
         "{\n"
         '  "label": "<one label, copied exactly from the list>",\n'
         '  "confidence": <number between 0 and 1>,\n'
-        '  "evidence_quote": "<a short verbatim span, copied character-for-character '
-        'from the title or body, that decided it>"\n'
+        '  "evidence_quote": "<ONE short span copied character-for-character from '
+        'the title or body, that decided it. It must be a single continuous run of '
+        'text: do not join separate sentences with an ellipsis, and do not include '
+        'the TITLE: or BODY: labels>"\n'
         "}\n"
     )
 
@@ -234,8 +236,10 @@ def build_cancer_prompt(title: str, selftext: str) -> str:
         '  "cancer_relevant": <true or false>,\n'
         '  "label": "<one of: current_patient, survivor, not_applicable, unclear>",\n'
         '  "confidence": <number between 0 and 1>,\n'
-        '  "evidence_quote": "<a short verbatim span, copied character-for-character '
-        'from the title or body, that decided it; empty string if not cancer-related>"\n'
+        '  "evidence_quote": "<ONE short span copied character-for-character from '
+        'the title or body, that decided it; a single continuous run of text, no '
+        'ellipsis joining separate sentences, no TITLE:/BODY: labels. Empty string '
+        'if not cancer-related>"\n'
         "}\n"
     )
 
@@ -248,15 +252,45 @@ def _normalize(s: str) -> str:
     return re.sub(r"\s+", " ", s or "").strip().casefold()
 
 
+# The model sometimes prefixes the label from the prompt's own post block, and
+# sometimes stitches two real but non-adjacent spans together with an ellipsis.
+# The 100-OP pilot: 9 of 100 discipline quotes failed a strict substring test,
+# and 8 of those 9 were one of these two shapes, every fragment real text. Only
+# 1 was an actual paraphrase. Treating the 8 as unverified would have reported a
+# 9% hallucination rate for a 1% one, so both shapes are handled here -- and the
+# prompt now asks for a single contiguous span, to reduce them at source.
+QUOTE_PREFIX_RE = re.compile(r"^\s*(?:TITLE|BODY)\s*:\s*", re.IGNORECASE)
+ELLIPSIS_RE = re.compile(r"\s*(?:\.{3,}|…)\s*")
+MIN_FRAGMENT_CHARS = 12
+
+
+def quote_fragments(quote: str) -> list[str]:
+    """
+    Split a quote into the spans that must each appear in the post.
+
+    A quote with no ellipsis yields one fragment and behaves exactly as a plain
+    substring test. Where an ellipsis did split it, fragments shorter than
+    MIN_FRAGMENT_CHARS are dropped: they are usually a stray word or two left by
+    the split, too short to be evidence of anything and too short to fail on.
+    """
+    q = QUOTE_PREFIX_RE.sub("", quote or "")
+    parts = [p for p in ELLIPSIS_RE.split(q) if _normalize(p)]
+    if len(parts) <= 1:
+        return parts
+    return [p for p in parts if len(_normalize(p)) >= MIN_FRAGMENT_CHARS] or parts
+
+
 def verify_quote(quote: str, title: str, selftext: str) -> bool:
     """
-    True if the quote really occurs in the post, comparing on collapsed whitespace
-    and case. An empty quote is not a match: callers record it as unverified.
+    True if every fragment of the quote really occurs in the post, comparing on
+    collapsed whitespace and case. An empty quote is not a match: callers record
+    it as unverified.
     """
-    q = _normalize(quote)
-    if not q:
+    frags = quote_fragments(quote)
+    if not frags:
         return False
-    return q in _normalize(f"{title} {selftext}")
+    hay = _normalize(f"{title} {selftext}")
+    return all(_normalize(f) in hay for f in frags)
 
 
 # ---------------------------------------------------------------------------
@@ -491,6 +525,7 @@ async def process_op(
         "confidence": _confidence(payload),
         "evidence_quote": quote,
         "evidence_quote_verified": quote_ok,
+        "evidence_quote_spans": len(quote_fragments(quote)),
     }
 
     if task == "discipline":

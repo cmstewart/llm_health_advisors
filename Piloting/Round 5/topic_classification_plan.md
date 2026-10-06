@@ -107,6 +107,42 @@ Not built, from the sections above: the BERTopic coverage check (approach 3), an
 blind hand-coding of 200 OPs with two coders. The second is the ceiling on everything
 here, and `agreement.py` says so when it finishes.
 
+### Pilot findings (100 OPs, gemini-2.5-pro, $0.27)
+
+A 100-OP pilot ran twice over the same posts, once before and once after a prompt fix.
+The second run is the one checkpointed; the full run resumes past it.
+
+**It works.** 200/200 calls returned, none empty, none refused, and not one label fell
+outside the closed list. All 17 disciplines were used, and the two residual categories
+were used sparingly and close to the source paper's rates (`Nonmedical` 4%,
+`Medical; other` 1%), so the model is not dumping hard cases into the escape hatches.
+
+**r/AskDocs does not look like Chan et al.'s corpus**, in ways that make sense:
+dermatology 12% against their 4.1%, psychiatry 13% against their 26.6%. People bring
+rashes and moles to an advice forum and take mental health elsewhere. Their frequencies
+are a prior about general Reddit, not a prediction about this subreddit.
+
+**Running the cancer flag on all threads was the right call.** 7 of 100 posts were
+cancer-relevant, while only 1 was labelled `Neoplasms`. Gating the cancer task on the
+oncology node would have missed most of them.
+
+**Self-reported confidence is close to useless.** Every discipline label came back at
+0.70 or above, most at 1.0, and every cancer label at exactly 1.0. The confidence floor
+in `agreement.py` will therefore never fire: triage rests on labeller disagreement and
+quote verification, not on the model's own certainty.
+
+**Test-retest reliability is about 95%.** The two runs used identical inputs at
+temperature 0, and 5 of 100 discipline labels still changed between them (3 of the 5
+moved to psychiatry); `cancer_relevant` changed on 1 of 100. That is an upper bound on
+reliability that is independent of accuracy, and it is worth reporting alongside the
+hand-coded validation rather than in place of it.
+
+**Quoting the evidence mostly works.** 9 of 100 quotes failed a strict substring test,
+but 8 of those were real text either split across an ellipsis or carrying the prompt's
+own `TITLE:` label. The true paraphrase rate is 1%. The prompt now asks for a single
+contiguous span and the checker handles both shapes, which took the measured rate from
+9% to 1% and multi-span quotes from 7 to 3.
+
 ### The taxonomy
 
 All 17 names are in `taxonomy.json`, transcribed verbatim from **Table 2** of Chan et al.
