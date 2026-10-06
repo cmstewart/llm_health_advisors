@@ -2,15 +2,15 @@
 *.zst
 
 # Corpus data (large JSONL files — share via LFS or external storage)
-output/corpora/*.jsonl
-output/corpora/*.csv
+**/output/corpora/*.jsonl
+**/output/corpora/*.csv
 
 # Checkpoints from synthetic generation runs
-output/corpora/checkpoints/
-output/corpora/generated/
+**/output/corpora/checkpoints/
+**/output/corpora/generated/
 
 # Topic classification output (labels, consensus, manual-coding queue)
-output/corpora/labels/
+**/output/corpora/labels/
 
 # Python
 __pycache__/

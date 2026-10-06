@@ -2,7 +2,8 @@
 
 The goal is to label the 6,600 threads by subject matter, to describe the corpus and to 
 test whether the real-vs-synthetic empathy gap varies by topic. The code for approaches 1
-and 2 is in `Data/` (see [Implementation](#implementation)); nothing has been run yet.
+and 2 is in `Data/` (see [Implementation](#implementation)). A 100-OP pilot has run; the
+full run has not.
 
 ## Approach
 
@@ -62,9 +63,14 @@ In `Data/`, at the repository root. Run in this order:
 | `classify_topics.py` | Labeller A. Task `discipline` picks one of the 17 + "Other"; task `cancer` returns relevance and the patient/survivor stance. Both return `{label, confidence, evidence_quote}`. |
 | `classify_cancer_scispacy.py` | Labeller B. UMLS entity linking for cancer relevance; cue-based stance. |
 | `agreement.py` | Joins the two, reports both kappas, writes `cancer_consensus.jsonl` and `manual_coding_queue.csv`. |
+| `build_handcoding_sheets.py` | Draws 200 OPs and writes one blind workbook per coder: no label, confidence or quote reaches them. Run this FIRST. |
+| `score_handcoding.py` | Inter-annotator agreement, the gold standard, the adjudication queue, and the classifier's precision/recall against it. |
 
 ```bash
 cd Data
+python build_handcoding_sheets.py                    # first: code 200 OPs blind
+python score_handcoding.py                           # agreement + gold standard
+
 python classify_topics.py --dry-run --n-ops 6600     # cost first, always
 python classify_topics.py --from-analysis-dataset "../Piloting/Round 5/output/corpora/analysis_dataset_6600.jsonl"
 python classify_cancer_scispacy.py --from-analysis-dataset "...same..."
@@ -103,9 +109,22 @@ Decisions worth recording, since the plan commits to publishing them:
   would split the residue across overlapping options. Off-list labels are coerced to
   `Medical; other` and counted.
 
-Not built, from the sections above: the BERTopic coverage check (approach 3), and the
-blind hand-coding of 200 OPs with two coders. The second is the ceiling on everything
-here, and `agreement.py` says so when it finishes.
+Not built, from the sections above: the BERTopic coverage check (approach 3).
+
+The hand-coding harness is built. `build_handcoding_sheets.py` draws 200 OPs from the same
+6,600-OP seeded sample, so every coded OP joins the analysis, and writes one workbook per
+coder with dropdowns bound to the codebook. Blindness is verified, not asserted: the
+workbooks were audited for any label artefact and carry none, and the script reports how
+many sampled OPs already have an automated label (2 of 200, from the pilot) so the overlap
+can be disclosed rather than discovered. The codebook shown to coders restates the model's
+own rubric verbatim, since judging humans and model against different definitions would
+make the precision and recall meaningless.
+
+`score_handcoding.py` then reports, in the order each bounds the next: inter-annotator
+agreement as the ceiling; the gold standard, with coder disagreements written to an
+adjudication queue rather than resolved by picking a coder; and the classifier's accuracy,
+macro-F1 and per-class precision/recall against that gold. Undefined metrics print as
+`n/a`, never as 0.00.
 
 ### Pilot findings (100 OPs, gemini-2.5-pro, $0.27)
 
