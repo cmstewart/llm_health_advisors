@@ -22,11 +22,15 @@ Two kappas, and they are not equally meaningful
                     means (LLM judgement vs UMLS semantic type). This kappa is
                     the real measure of agreement.
 
-  stance            Labeller B has no way to read current-patient vs survivor; it
-                    scores surface cues. The stance kappa is reported because the
-                    plan asks for it, but it is a floor on agreement, not a
-                    validation of the stance labels. Validating stance needs the
-                    hand-coding step, which is not implemented.
+  stance            DEFERRED. The current-patient vs survivor contrast is not
+                    part of the current analysis: at the prevalence the source
+                    paper implies it would be descriptive rather than powered.
+                    The labels are still collected and stored, so the contrast
+                    can be run post hoc without re-spending on the API, and
+                    everything about it is reported below under a heading that
+                    says so. Labeller B also has no way to read current-vs-past,
+                    so its stance is surface cues and that kappa is a floor on
+                    agreement, never a validation.
 
 Usage
 -----
@@ -237,7 +241,7 @@ def report_agreement(a: dict[str, dict], b: dict[str, dict]) -> set[str]:
     # Stance, on the posts both called cancer-relevant.
     both_rel = [i for i in shared
                 if a[i].get("cancer_relevant") and b[i].get("cancer_relevant")]
-    print("\n  stance  (WEAK: labeller B is surface cues, not a second reader)")
+    print("\n  stance  (DEFERRED, and WEAK: labeller B is surface cues, not a reader)")
     if not both_rel:
         print("    no posts both labellers called cancer-relevant")
     else:
@@ -305,8 +309,11 @@ def build_consensus(
         elif not a_rel:
             # Both labellers agree there is no cancer here. Settled.
             tier, why = "negative", ""
-        elif stance == "unclear":
-            tier, why = "low", "labeller A could not read the stance"
+        # NOTE: an unreadable stance no longer queues the post. While the
+        # patient-vs-survivor contrast is deferred, the thing a coder is
+        # adjudicating is cancer relevance, and "the stance could not be read"
+        # says nothing about that. Restore this branch if the contrast is
+        # revived, since the unclear cases are exactly what it would need read.
         elif not ra.get("evidence_quote_verified"):
             # A cancer history asserted without a quote that occurs in the post.
             # The report says these get read by hand; this is what makes that true.
@@ -354,34 +361,47 @@ def report_prevalence(consensus: list[dict], disciplines: dict[str, dict],
     else:
         print("  (no discipline labels found; run --tasks discipline for this table)")
 
-    # The cancer cells: this is the contrast the binary exists to support.
+    # The cancer flag itself: relevant vs not. This is the live contrast.
     cancer = [r for r in consensus if r.get("cancer_relevant_a")]
+    n_cancer = len(cancer)
+    mde_cancer = min_detectable_moderation(n_cancer, n_total)
+    print(f"\n  Cancer-flagged (labeller A): {n_cancer:,} "
+          f"({100*n_cancer/max(n_total,1):.1f}% of {n_total:,})")
+    if mde_cancer:
+        print(f"  Minimum detectable moderation, cancer vs rest: {mde_cancer:.1f} pp")
+        if mde_cancer > 11.8:
+            print("  That exceeds the main effect itself (11.8 pp): descriptive only.")
+        elif mde_cancer > 5.9:
+            print("  That is more than half the main effect (11.8 pp): exploratory.")
+
+    # --- Deferred: current_patient vs survivor -----------------------------
+    #
+    # Not part of the current analysis. The labels are collected and stored
+    # anyway, at no extra API cost, so reviving the contrast later is a matter
+    # of reading cancer_consensus.jsonl rather than re-running the cancer task.
+    # The arithmetic below is printed so the decision stays evidence-based.
     stance_counts = Counter(r.get("stance_a") for r in cancer)
-    print(f"\n  Cancer-flagged (labeller A): {len(cancer):,} "
-          f"({100*len(cancer)/max(n_total,1):.1f}% of {n_total:,})")
-    print(f"  {'stance':<20} {'n':>6} {'min. detectable':>16}")
-    print("  " + "-" * 44)
+    print("\n  [deferred] current_patient vs survivor")
+    print(f"  {'stance':<20} {'n':>6}")
+    print("  " + "-" * 28)
     for s in STANCES:
-        n = stance_counts.get(s, 0)
-        mde = min_detectable_moderation(n, n_total)
-        cell = f"{mde:.1f} pp" if mde else "n/a"
-        print(f"  {s:<20} {n:>6,} {cell:>16}")
+        print(f"  {s:<20} {stance_counts.get(s, 0):>6,}")
 
     n_pat = stance_counts.get("current_patient", 0)
     n_surv = stance_counts.get("survivor", 0)
-    print(f"\n  The patient-vs-survivor contrast rests on {n_pat:,} vs {n_surv:,} threads.")
     if min(n_pat, n_surv) == 0:
-        print("  One cell is empty: no contrast is estimable.")
+        print(f"\n  {n_pat:,} vs {n_surv:,}: one cell is empty, no contrast estimable.")
     else:
-        # Here the comparison is between the two cells, not cell vs complement.
+        # Between the two cells, not cell vs complement.
         mde = 100 * Z_SUM * GAP_SD * math.sqrt(1 / n_pat + 1 / n_surv)
-        print(f"  Smallest difference in the real-vs-synthetic gap detectable between")
-        print(f"  those two cells at 80% power: {mde:.1f} pp.")
-        if mde > 11.8:
-            print("  That exceeds the main effect itself (11.8 pp), so treat the")
-            print("  patient-vs-survivor split as descriptive, not as a powered test.")
-        elif mde > 5.9:
-            print("  That is more than half the main effect (11.8 pp): exploratory.")
+        print(f"\n  {n_pat:,} vs {n_surv:,} threads; smallest detectable difference in")
+        print(f"  the real-vs-synthetic gap between them at 80% power: {mde:.1f} pp.")
+        verdict = (
+            "above the main effect (11.8 pp) -- descriptive only" if mde > 11.8
+            else "more than half the main effect (11.8 pp) -- exploratory" if mde > 5.9
+            else "adequately powered: worth reconsidering the deferral"
+        )
+        print(f"  {verdict}.")
 
 
 # ---------------------------------------------------------------------------

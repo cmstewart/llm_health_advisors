@@ -73,12 +73,15 @@ python agreement.py
 
 Decisions worth recording, since the plan commits to publishing them:
 
-- **The cancer binary is patient vs survivor on first-person threads only.** Cancer
-  threads where the history is someone else's (caregiver), or where there is no diagnosis
-  (worried-well, screening, awaiting a first biopsy), get `not_applicable`; a cancer
-  history whose currency cannot be read gets `unclear` and goes to the queue. Forcing
-  those into one of two classes would have put caregiver and worried-well posts in the
-  patient or survivor cells.
+- **The live cancer contrast is relevant vs not. Current patient vs survivor is
+  deferred** (see below), though the stance labels are still collected and stored, so
+  reviving it later means reading `cancer_consensus.jsonl` rather than re-running the
+  cancer task. When it does apply it is first-person threads only: cancer threads where
+  the history is someone else's (caregiver), or where there is no diagnosis
+  (worried-well, screening, awaiting a first biopsy), get `not_applicable`, and a cancer
+  history whose currency cannot be read gets `unclear`. Forcing those into one of two
+  classes would have put caregiver and worried-well posts in the patient or survivor
+  cells.
 - **"Survivor" is used in the restricted sense**, not the NCI/NCCS sense. NCI counts
   anyone from diagnosis onward as a survivor, which would place every current patient in
   the survivor class and collapse the contrast. Ours is: primary treatment complete, no
@@ -134,9 +137,16 @@ all threads rather than on the node, so it also catches malignancies filed under
 Dermatology (melanoma) or Hematology (leukaemia); and the ICD-10 `Neoplasms` chapter
 covers benign tumours too, so the node is broader than cancer in the other direction. The
 honest reading is that the patient-vs-survivor contrast is likely descriptive rather than
-powered, and `agreement.py` prints the realized arithmetic once labels exist. Worth
-settling before the API spend: pool, oversample cancer threads beyond the seeded sample,
-or pre-register it as exploratory.
+powered.
+
+**Decision: that contrast is deferred.** It is out of the current analysis rather than
+pre-registered as exploratory, and can be revisited post hoc. The stance labels are
+collected and stored regardless, because they come from the same API call and cost
+nothing extra: reviving the contrast later is a matter of reading
+`cancer_consensus.jsonl`, not of re-running the cancer task. `agreement.py` reports the
+stance counts and their realized power under a `[deferred]` heading, so the decision can
+be revisited against actual numbers rather than against the source paper's prior. The
+live cancer contrast is relevance, cancer vs rest.
 
 ## Open questions
 
