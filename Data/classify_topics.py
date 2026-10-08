@@ -621,7 +621,7 @@ async def run_model_task(
 # Dry run / estimation
 # ---------------------------------------------------------------------------
 
-def estimate(ops: list[dict], models: list[str], tasks: list[str]) -> None:
+def estimate(ops: list[dict], models: list[str], tasks: list[str], tax: Taxonomy) -> None:
     n = len(ops)
     print("\n--- Workload estimate ---")
     print(f"OPs: {n:,}   tasks: {', '.join(tasks)}")
@@ -629,11 +629,16 @@ def estimate(ops: list[dict], models: list[str], tasks: list[str]) -> None:
     print(f"  {n*len(tasks):,} calls per model  x{len(models)} models "
           f"= {n*len(tasks)*len(models):,} total")
 
-    # ~4 chars/token. The prompt carries the post plus its instruction block; the
-    # taxonomy list makes the discipline prompt the longer of the two. Output is a
-    # single small JSON object.
-    INSTR = {"discipline": 420, "cancer": 520}
+    # ~4 chars/token. Measure the instruction block rather than hardcoding it: the
+    # discipline prompt grows every time a rule goes into taxonomy.json, and a stale
+    # constant would quietly understate the cost of a 6,600-post run.
+    INSTR = {
+        "discipline": len(build_discipline_prompt("", "", tax)) / 4,
+        "cancer": len(build_cancer_prompt("", "")) / 4,
+    }
     OUT = 60
+    print('  instruction block: '
+          + ', '.join(f'{t} ~{INSTR[t]:,.0f} tok' for t in tasks))
     t_in = t_out = 0.0
     for o in ops:
         post = len(o["title"] + o["selftext"]) / 4
@@ -784,7 +789,7 @@ async def main_async(args) -> None:
             "         Confirm the names are verbatim from Table 2, then set it true."
         )
 
-    estimate(ops, models, tasks)
+    estimate(ops, models, tasks, tax)
 
     if args.dry_run:
         print("\nDry run: no API calls made.")
