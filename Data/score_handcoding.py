@@ -34,6 +34,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -54,6 +55,52 @@ CANCER_NODE = "Neoplasms"
 # ---------------------------------------------------------------------------
 # Reading the workbooks
 # ---------------------------------------------------------------------------
+
+CONTESTED_RE = re.compile(r"^\s*contested\b", re.IGNORECASE)
+
+
+def read_adjudications(path: Path) -> tuple[dict[str, str], set[str]]:
+    """
+    Read adjudication decisions from either the queue CSV or the recommended
+    workbook, so the decisions can be made wherever is convenient.
+
+    A decision whose note begins "contested" is recorded as a call that was made
+    but is genuinely ambiguous. Those are kept in the gold standard -- the
+    classifier cannot abstain, so dropping them would score it only on the
+    resolvable posts -- and reported separately, because marking a coin-flip as
+    plain gold penalises the model for choosing the other defensible answer.
+    """
+    decisions: dict[str, str] = {}
+    contested: set[str] = set()
+
+    def take(sid, label, note):
+        sid = (str(sid) if sid is not None else "").strip()
+        label = (str(label) if label is not None else "").strip()
+        if not sid or not label:
+            return
+        decisions[sid] = label
+        if note and CONTESTED_RE.match(str(note)):
+            contested.add(sid)
+
+    if path.suffix.lower() in (".xlsx", ".xlsm"):
+        wb = load_workbook(path, data_only=True)
+        ws = wb["Adjudication"] if "Adjudication" in wb.sheetnames else wb[wb.sheetnames[0]]
+        rows = ws.iter_rows(values_only=True)
+        header = [str(h).strip() if h else "" for h in next(rows)]
+        need = {"submission_id", "adjudicated"}
+        if not need <= set(header):
+            sys.exit(f"ERROR: {path.name} needs columns {sorted(need)}; found {header}")
+        i_sid, i_adj = header.index("submission_id"), header.index("adjudicated")
+        i_note = header.index("your_notes") if "your_notes" in header else None
+        for row in rows:
+            take(row[i_sid], row[i_adj], row[i_note] if i_note is not None else None)
+    else:
+        with open(path, newline="") as f:
+            for row in csv.DictReader(f):
+                take(row.get("submission_id"), row.get("adjudicated"),
+                     row.get("your_notes") or row.get("adjudication_notes"))
+    return decisions, contested
+
 
 def read_coder(path: Path) -> dict[str, dict]:
     """Pull {submission_id: {discipline, cancer_relevant, cancer_stance, notes}}."""
@@ -109,7 +156,8 @@ def _fmt(x, width: int = 6) -> str:
     return f"{x:>{width}.2f}" if x is not None else f"{'n/a':>{width}}"
 
 
-def report_multiclass(gold: dict[str, str], pred: dict[str, str], title: str) -> None:
+def report_multiclass(gold: dict[str, str], pred: dict[str, str], title: str,
+                      contested: set[str] | None = None) -> None:
     """Per-class precision/recall/F1 plus accuracy and macro-F1."""
     shared = sorted(set(gold) & set(pred))
     print(f"\n--- {title} ---")
@@ -119,6 +167,19 @@ def report_multiclass(gold: dict[str, str], pred: dict[str, str], title: str) ->
     correct = sum(1 for i in shared if gold[i] == pred[i])
     print(f"  n={len(shared):,}   accuracy {correct/len(shared):.3f} "
           f"({correct}/{len(shared)})")
+
+    # The spread between these two bounds how much of the error is real error
+    # rather than irreducible ambiguity in the scheme.
+    if contested:
+        firm = [i for i in shared if i not in contested]
+        cont = [i for i in shared if i in contested]
+        if firm and cont:
+            cf = sum(1 for i in firm if gold[i] == pred[i])
+            cc = sum(1 for i in cont if gold[i] == pred[i])
+            print(f"    excluding {len(cont)} contested: {cf/len(firm):.3f} "
+                  f"({cf}/{len(firm)})")
+            print(f"    on the contested alone:          {cc/len(cont):.3f} "
+                  f"({cc}/{len(cont)})")
 
     tp: Counter = Counter()
     fp: Counter = Counter()
@@ -263,16 +324,16 @@ def main() -> None:
 
     # --- 2. gold standard ---------------------------------------------------
     adjudged: dict[str, str] = {}
+    contested: set[str] = set()
     if args.adjudicated:
         p = Path(args.adjudicated)
         if not p.exists():
             sys.exit(f"ERROR: adjudication file not found: {p}")
-        with open(p, newline="") as f:
-            for row in csv.DictReader(f):
-                v = (row.get("adjudicated") or "").strip()
-                if v:
-                    adjudged[row["submission_id"]] = v
+        adjudged, contested = read_adjudications(p)
         print(f"\nAdjudication: {len(adjudged):,} resolved decisions read from {p.name}")
+        if contested:
+            print(f"  {len(contested):,} marked contested: a call was made, but the post is")
+            print("  genuinely ambiguous. Accuracy is reported with and without them.")
 
     gold_disc: dict[str, str] = {}
     gold_cancer: dict[str, bool] = {}
@@ -384,7 +445,7 @@ def main() -> None:
         if missing:
             print(f"  NOTE: {missing:,} gold OPs have no classifier label yet "
                   "(partial run); they are skipped.")
-        report_multiclass(gold_disc, pred, "discipline")
+        report_multiclass(gold_disc, pred, "discipline", contested)
 
     if cpath.exists() and gold_cancer:
         praw = latest_per_op(read_jsonl(cpath))
