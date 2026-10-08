@@ -169,6 +169,44 @@ own `TITLE:` label. The true paraphrase rate is 1%. The prompt now asks for a si
 contiguous span and the checker handles both shapes, which took the measured rate from
 9% to 1% and multi-span quotes from 7 to 3.
 
+### Validation result (6,600 posts labelled; 200 hand-coded)
+
+**The classifier performs at the human ceiling.** Against the adjudicated gold standard
+it is right on 154 of 200 posts, accuracy 0.770 (95% CI 0.712-0.828), macro-F1
+0.726. The two coders agreed with each other on 0.795 of the same posts (kappa 0.779,
+95% CI 0.718-0.839). The 2.5-point gap between 0.770 and 0.795 sits inside the interval,
+so the model's disagreement with the gold is about as large as two trained humans'
+disagreement with each other, and no better performance could be demonstrated on this
+scheme without first improving the humans.
+
+`cancer_relevant` is stronger: accuracy 0.977 with recall 1.00 and precision 0.80 on the
+labelled subset. It missed no cancer-relevant post and over-flagged one.
+
+Where it fails, and why it matters for the moderation analysis:
+
+- **Psychiatry is over-assigned**: recall 1.00 but precision 0.59, so it finds every
+  psychiatric post and two in five of its psychiatric calls are wrong. Neurology and
+  Nonmedical posts leak into it. The same failure mode the discarded first coding pass
+  showed, which suggests posts written anxiously read as psychiatric to a careless reader
+  of any kind.
+- **The residual categories are weakest**: `Medical; other` recall 0.55 and `Nonmedical`
+  recall 0.40. The model resists them, pushing posts into substantive categories instead.
+  Neither is a topic, so this matters less than it looks, but it is a reason not to model
+  them as levels.
+- **`Neoplasms` is 0.57 both ways** on n=7. It is the most rule-dependent category, so
+  it is also the one where the codebook rules are doing the most work and the sample is
+  thinnest.
+- **Two systematic confusions worth a rule each if this is ever rerun**: `Medical; other`
+  -> Neurology three times, which is the sleep and circadian posts the adjudicators sent
+  to the residual category and the model reads as neurological; and `Infectious diseases`
+  -> Gastroenterology three times, the food-poisoning posts, where the gold follows
+  ICD-10's placement of intestinal infectious disease in Chapter I and the model follows
+  the symptom.
+
+The practical consequence for whoever models the topic moderation: roughly one label in
+four disagrees with the gold, which attenuates interaction estimates toward zero. A null
+topic effect is therefore weaker evidence of no effect than a clean moderator would give.
+
 ### The taxonomy
 
 All 17 names are in `taxonomy.json`, transcribed verbatim from **Table 2** of Chan et al.
