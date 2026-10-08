@@ -40,3 +40,4 @@ submission_id,field,coder_A,coder_B,notes_a,notes_b,adjudicated
 1qival9,discipline,Medical; other,Cardiovascular,"Caffeine pain could be GI or cardiac, but not enough detail to call.",,
 1qpi70l,discipline,Nonmedical,Dermatology,Question strictly asks for advice on how to communicate with the doctor.,,
 1qr6t2d,discipline,Psychiatry and mental health,Medical; other,Patient suspects Munchausen by proxy/being drugged intentionally.,Concern is possible poisoning/medical abuse by a caregiver; no specific organ system is the primary subject.,
+1q9ry6r,discipline (rule candidate),Genitourinary and reproductive health,Genitourinary and reproductive health,both coders agreed; both flagged cancer_relevant,Rule A -> Neoplasms if the malignancy was clinically raised,

@@ -47,6 +47,9 @@ from agreement import cohens_kappa, interpret, latest_per_op, read_jsonl
 
 TASK_COLS = ("discipline", "cancer_relevant", "cancer_stance")
 
+# The discipline that codebook Rule A routes malignancies to.
+CANCER_NODE = "Neoplasms"
+
 
 # ---------------------------------------------------------------------------
 # Reading the workbooks
@@ -292,18 +295,76 @@ def main() -> None:
             if r["cancer_relevant"]:
                 gold_cancer[i] = (r["cancer_relevant"] == "yes")
 
+    # A rule decision recorded for a post the coders agreed on overrides that consensus.
+    # The gold standard then matches the rubric the classifier was given, which is the
+    # point of putting the rules in taxonomy.json; the count is reported, not buried.
+    overridden = []
+    for i, v in adjudged.items():
+        if i in gold_disc and gold_disc[i] != v:
+            overridden.append((i, gold_disc[i], v))
+            gold_disc[i] = v
+
     print(f"\n=== 2. Gold standard ===")
     print(f"  discipline:      {len(gold_disc):,} OPs")
     print(f"  cancer_relevant: {len(gold_cancer):,} OPs")
+    if overridden:
+        print(f"  {len(overridden):,} post(s) recoded by rule, overriding coder consensus:")
+        for i, was, now in overridden:
+            print(f"    {i}  {was[:34]} -> {now}")
+    # Rule candidates: posts where a codebook rule may override the coders. Both coders
+    # called the post cancer-relevant but the gold label is not the cancer node, so Rule A
+    # may apply -- whether it does needs a human to confirm the malignancy was clinically
+    # raised rather than merely worried about, which no script can decide. These join the
+    # same queue the disagreements go to, so there is one file to work through.
+    cancer_both: set[str] = set()
+    if len(names) >= 2:
+        ca, cb = coders[names[0]], coders[names[1]]
+        cancer_both = {i for i in set(ca) & set(cb)
+                       if ca[i]["cancer_relevant"] == "yes" == cb[i]["cancer_relevant"]}
+    else:
+        cancer_both = {i for i, r in coders[names[0]].items()
+                       if r["cancer_relevant"] == "yes"}
+    rule_cands = [
+        {
+            "submission_id": i,
+            "field": "discipline (rule candidate)",
+            **{f"coder_{n}": coders[n].get(i, {}).get("discipline") for n in names[:2]},
+            "notes_a": "both coders agreed; both flagged cancer_relevant",
+            "notes_b": f"Rule A -> {CANCER_NODE} if the malignancy was clinically raised",
+            "adjudicated": "",
+        }
+        for i in sorted(cancer_both)
+        if i in gold_disc and gold_disc[i] != CANCER_NODE and i not in adjudged
+    ]
+
     unresolved = [d for d in disagreements if d["submission_id"] not in adjudged]
-    if unresolved:
+    queue = unresolved + rule_cands
+    if queue:
         out = hc_dir / "adjudication_queue.csv"
-        cols = list(unresolved[0].keys())
+        # Carry over decisions already recorded, so re-running never wipes partial work.
+        prior: dict[str, str] = {}
+        if out.exists():
+            with open(out, newline="") as f:
+                for row in csv.DictReader(f):
+                    v = (row.get("adjudicated") or "").strip()
+                    if v:
+                        prior[row["submission_id"]] = v
+        kept = 0
+        for d in queue:
+            if d["submission_id"] in prior:
+                d["adjudicated"] = prior[d["submission_id"]]
+                kept += 1
+        cols = list(queue[0].keys())
         with open(out, "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=cols)
             w.writeheader()
-            w.writerows(unresolved)
+            w.writerows(queue)
         print(f"  {len(unresolved):,} disagreement(s) excluded, written to {out.name}")
+        if rule_cands:
+            print(f"  {len(rule_cands):,} rule candidate(s) added to the same file: posts")
+            print(f"     both coders agreed on, where Rule A may override them")
+        if kept:
+            print(f"  {kept:,} decision(s) already in that file were preserved")
         print("  Fill its 'adjudicated' column and re-run with --adjudicated to fold")
         print("  them back in. Until then the gold holds only the cases both coders")
         print("  found easy, which flatters the classifier below.")
