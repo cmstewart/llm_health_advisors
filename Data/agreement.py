@@ -414,6 +414,9 @@ def main() -> None:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     ap.add_argument("--labels-dir", default="../Piloting/Round 5/output/corpora/labels")
+    ap.add_argument("--handcoding-dir",
+                    default="../Piloting/Round 5/output/corpora/handcoding",
+                    help="only checked to report whether validation exists")
     ap.add_argument("--model", default=None,
                     help="labeller-A model to use; default is the only one present, "
                          "or 'gemini' if several")
@@ -535,12 +538,25 @@ def main() -> None:
     print(f"\nWrote {cons_path}")
     print(f"Wrote {queue_path}  ({len(queue):,} OPs for a human, "
           f"{100*len(queue)/max(len(consensus),1):.1f}% of the labelled set)")
-    print(
-        "\nStill outstanding from the plan: the blind hand-coding of 200 random OPs\n"
-        "before anyone looks at automated output, two coders, and a reportable\n"
-        "inter-annotator kappa. That is the ceiling on everything above, and it is\n"
-        "not built here."
-    )
+    # The plan's validation step is the ceiling on everything above. Report its
+    # state rather than asserting one: it was outstanding when this was written
+    # and has since been done, and a hardcoded claim either way goes stale.
+    hc = Path(args.handcoding_dir) if hasattr(args, "handcoding_dir") else None
+    books = sorted(hc.glob("handcode_*_*.xlsx")) if hc and hc.exists() else []
+    if len(books) >= 2:
+        print(
+            f"\nValidation: {len(books)} coders' workbooks are in {hc}. Run\n"
+            "score_handcoding.py for the inter-annotator agreement and the\n"
+            "classifier's precision and recall against it -- that agreement is the\n"
+            "ceiling on everything above."
+        )
+    else:
+        print(
+            "\nStill outstanding from the plan: the blind hand-coding of 200 random OPs\n"
+            "before anyone looks at automated output, two coders, and a reportable\n"
+            "inter-annotator kappa. That is the ceiling on everything above.\n"
+            "Build the workbooks with build_handcoding_sheets.py."
+        )
 
 
 if __name__ == "__main__":

@@ -207,6 +207,33 @@ The practical consequence for whoever models the topic moderation: roughly one l
 four disagrees with the gold, which attenuates interaction estimates toward zero. A null
 topic effect is therefore weaker evidence of no effect than a clean moderator would give.
 
+### Realized prevalence, and the deferred contrast settled
+
+With all 6,600 labelled, r/AskDocs looks nothing like the source paper's corpus. Chan et
+al.'s top category was psychiatry at 26.6%; here it is dermatology at 10.8%, with
+psychiatry fourth at 9.0%. The distribution is also far flatter: their top four
+disciplines carried 55% of posts, ours carry 42%. People bring visible physical
+complaints to an advice subreddit and take mental health elsewhere.
+
+Eight disciplines clear the 5% prevalence the feasibility table treats as the line for a
+powered moderation test (dermatology 10.8%, gastroenterology 10.8%, genitourinary 10.5%,
+psychiatry 9.0%, infectious diseases 8.7%, neurology 8.0%, cardiovascular 7.5%,
+endocrinology 6.7%, and musculoskeletal at 5.5% alongside the residual Medical; other).
+Nine fall below it and are exploratory, including Neoplasms at 2.6%.
+
+**Cancer vs rest is adequately powered**, which the source paper's prior had suggested it
+would not be. 518 of 6,600 posts are cancer-relevant, 7.8%, against the 1.57% the
+Neoplasms node implied -- five times the prior, because the flag runs on every post
+rather than on the oncology node. Minimum detectable moderation is 4.9 pp, inside half
+the 11.8 pp main effect.
+
+**The patient-vs-survivor deferral was right, and is now settled on data rather than on a
+prior.** Of the 518 cancer-relevant posts, 459 are not_applicable -- the cancer is a
+relative's, or there is no diagnosis -- leaving 18 current patients and 38 survivors. The
+smallest detectable difference between those two cells is 30.9 pp, nearly three times the
+main effect. The contrast is descriptive at this sample size and no amount of relabelling
+changes that; it would need a cancer-enriched sample.
+
 ### The taxonomy
 
 All 17 names are in `taxonomy.json`, transcribed verbatim from **Table 2** of Chan et al.
