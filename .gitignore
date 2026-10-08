@@ -12,6 +12,9 @@
 # Topic classification output (labels, consensus, manual-coding queue)
 **/output/corpora/labels/
 
+# Exported label deliverable (regenerate with Data/export_labels.py)
+**/output/corpora/export/
+
 # Python
 __pycache__/
 *.pyc
