@@ -58,6 +58,10 @@
   "_fallback_label_note": "Where an off-list label is coerced to when the model returns something outside the closed list. Counted as off_list and reported, never silent.",
   "residual_guidance": "Use \"Medical; other\" for a post with a genuine medical subject that fits none of the other categories. Use \"Nonmedical\" for a post with no medical subject at all, such as a question about the subreddit itself.",
   "_residual_guidance_note": "Rendered verbatim into the discipline prompt. The wording for the residual categories lives here with the category list rather than in the Python, so swapping the taxonomy swaps its guidance too.",
+  "category_rules": [
+    "A confirmed or suspected malignancy is coded \"Neoplasms\" regardless of which organ is involved. Code the organ system instead only when the post's primary concern is a non-malignant problem that happens to co-occur with a cancer history."
+  ],
+  "_category_rules_note": "Boundary rules rendered into the discipline prompt as additional bullets, and applied by the human coders during adjudication. They live here so the model and the coders are held to one rubric: scoring the classifier against a rule it was never given would understate it. Adopted 2026-10-08: the Neoplasms rule follows the ICD-10 chapter convention the taxonomy is built on, and resolves disagreements where coders agreed a post concerned cancer but split over filing it under Neoplasms or the affected organ system.",
   "cancer_node": "Neoplasms",
   "_cancer_node_note": "Used only by --cancer-scope oncology. Note that the ICD-10 'Neoplasms' chapter covers benign as well as malignant neoplasms, so this node is broader than cancer; the cancer task decides malignancy itself and by default (--cancer-scope all) does not read this field."
 }

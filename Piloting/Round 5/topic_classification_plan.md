@@ -88,6 +88,13 @@ Decisions worth recording, since the plan commits to publishing them:
   history whose currency cannot be read gets `unclear`. Forcing those into one of two
   classes would have put caregiver and worried-well posts in the patient or survivor
   cells.
+- **Neoplasms outranks the organ system** (adopted 2026-10-08, after the hand-coding).
+  A confirmed or suspected malignancy is coded `Neoplasms` whichever organ is involved;
+  the organ system is coded only when the post's primary concern is a non-malignant
+  problem alongside a cancer history. This follows the ICD-10 chapter convention the
+  taxonomy is built on. It lives in `taxonomy.json` as `category_rules` and is rendered
+  into the prompt, so the classifier and the human coders are held to one rubric —
+  scoring the model against a rule it was never given would understate it.
 - **"Survivor" is used in the restricted sense**, not the NCI/NCCS sense. NCI counts
   anyone from diagnosis onward as a survivor, which would place every current patient in
   the survivor class and collapse the contrast. Ours is: primary treatment complete, no

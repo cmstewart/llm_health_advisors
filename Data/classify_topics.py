@@ -106,6 +106,7 @@ class Taxonomy:
     other_label: str | None
     fallback_label: str
     residual_guidance: str
+    category_rules: list[str]
     cancer_node: str | None
     verified: bool
     placeholders: list[str] = field(default_factory=list)
@@ -149,6 +150,8 @@ def load_taxonomy(path: Path) -> Taxonomy:
         # a taxonomy that has one.
         fallback_label=raw.get("fallback_label") or other_label or "",
         residual_guidance=raw.get("residual_guidance", ""),
+        # Boundary rules the coders adjudicate by; the model gets the same ones.
+        category_rules=list(raw.get("category_rules") or []),
         cancer_node=cancer_node,
         verified=bool(raw.get("verified", False)),
         placeholders=placeholders,
@@ -191,6 +194,7 @@ def build_discipline_prompt(title: str, selftext: str, tax: Taxonomy) -> str:
         "Rules:\n"
         "- You must copy one label from the list exactly. Do not invent a category.\n"
         + (f"- {tax.residual_guidance}\n" if tax.residual_guidance else "")
+        + "".join(f"- {r}\n" for r in tax.category_rules)
         + "- Classify by the post's own primary concern, not by every condition it mentions "
         "in passing.\n"
         "- Judge the title and body together. The subject is often only in the body.\n\n"
