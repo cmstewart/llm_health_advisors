@@ -13,7 +13,15 @@ can be tested for variation by topic.
 The lables are in `output/corpora/export/topic_labels.csv`, which joins to the analysis
 dataset on `submission_id` and is ready for use as an independent variable.
 
-## Why this approach
+## What I did
+
+I sampled 200 of the threads, use the ([Chan et al. 2025](https://formative.jmir.org/2025/1/e55309) taxonomy
+to label them and iron out issues, generated topic labels with 2 LLMs (Claude Sonnet 5.5 and GPT-6),
+isolated the 41 threads where the models disagreed, manually adjudicated between the two labels. This
+provided a level of ground truth. I then labeled all of the posts with a separate LLM (Gemini 2.5 Pro) with
+the same prompt.
+
+## Why I did it
 
 **A fixed taxonomy rather than topic modelling.** Unsupervised methods like BERTopic find
 whatever structure exists and cannot be asked for a category of interest.
