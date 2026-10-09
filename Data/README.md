@@ -10,7 +10,7 @@ This short README explains what was done and why.
 Label all 6,600 r/AskDocs threads by medical subject, so the real-vs-synthetic empathy gap
 can be tested for variation by topic.
 
-The lables are in `output/corpora/export/topic_labels.csv`, which joins to the analysis
+The lables are in `Piloting/Round 5/output/corpora/export/topic_labels.csv`, which joins to the analysis
 dataset on `submission_id` and is ready for use as an independent variable.
 
 ## What I did
