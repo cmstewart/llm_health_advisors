@@ -5,7 +5,7 @@ Topic classification of r/AskDocs opening posts -- labeller A (LLM).
 Implements the supervised half of Piloting/Round 5/topic_classification_plan.md:
 
   task "discipline"  Fixed taxonomy, LLM-classified. The model picks exactly one
-                     of the 17 JMIR disciplines (Data/taxonomy.json), which carry
+                     of the 17 JMIR disciplines (src/taxonomy.json), which carry
                      their own residual categories ("Medical; other", "Nonmedical").
                      It never generates a category freely.
 

@@ -20,7 +20,7 @@ OPs are skipped.
 1. **Top up Gemini credits.** This is what failed last time, 675 calls deep into SAGII.
    Budget ~$40 at [ai.studio](https://ai.studio/projects).
 2. **Confirm OpenRouter and OpenAI balances.** Roughly $50 and $100 respectively.
-3. **Locate your existing checkpoints.** `Data/output/corpora/generated/*.jsonl`, nine files of
+3. **Locate your existing checkpoints.** `src/output/corpora/generated/*.jsonl`, nine files of
    3,000 records each. These must go onto the VM or the run will regenerate work you have
    already paid for.
 
@@ -53,7 +53,7 @@ gcloud compute ssh askdocs-gen --zone=us-central1-a --command="mkdir -p ~/corpor
 
 ### 2. Upload script, corpus, and existing checkpoints
 
-From your local `Data/`:
+From your local `src/`:
 
 ```bash
 gcloud compute scp --zone=us-central1-a generate_synthetic.py askdocs-gen:~/
@@ -145,7 +145,7 @@ gcloud compute instances delete askdocs-gen --zone=us-central1-a
 
 ### 7. Rebuild the analysis inputs
 
-These two scripts live alongside this one in `Data/`:
+These two scripts live alongside this one in `src/`:
 
 ```bash
 python build_analysis_dataset.py --gzip

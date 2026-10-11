@@ -48,18 +48,18 @@ the question-mark proxy with the actual measure.
 ## Files
 
 This README and `5_exploratory_analysis.ipynb` beside it are the record of the
-3,000-thread run. Everything else from this round now lives in `Data/` at the repository
+3,000-thread run. Everything else from this round now lives in `src/` at the repository
 root, with the 6,600-thread work it grew into:
 
 - `5_exploratory_analysis.ipynb` — the analysis above, with outputs
-- `Data/build_analysis_dataset.py` — merges corpus and generated output into one analysis file
-- `Data/build_review_spreadsheet.py` — builds a per-thread review spreadsheet for manual reading
-- `Data/topic_classification_plan.md` — the topic labelling decision log
-- `Data/output/corpora/` — all output from this round and the scale-up
+- `src/build_analysis_dataset.py` — merges corpus and generated output into one analysis file
+- `src/build_review_spreadsheet.py` — builds a per-thread review spreadsheet for manual reading
+- `src/topic_classification_plan.md` — the topic labelling decision log
+- `src/output/corpora/` — all output from this round and the scale-up
 
 ## Ramping up to 6,600 threads
 
-`Data/` at the repository root holds the sample size analysis and the tooling to extend the
+`src/` at the repository root holds the sample size analysis and the tooling to extend the
 run:
 
 - `power_analysis.md` — why 6,600 rather than stopping at 3,000 or going to the full corpus
@@ -78,26 +78,26 @@ precision on effects that are already resolved.
 The notebook reads `analysis_dataset.jsonl`, one record per thread containing the OP, its
 real comments, and all nine synthetic sets. It is 26.7 MB (7.7 MB gzipped) and is **not in
 this repository**; it is shared separately via Google Drive. Place it in
-`Data/output/corpora/` and the notebook will find it.
+`src/output/corpora/` and the notebook will find it.
 
 To rebuild it from source:
 
 ```bash
-cd Data && python build_analysis_dataset.py --gzip
+cd src && python build_analysis_dataset.py --gzip
 ```
 
 ## Reproducing the generation
 
-The script lives in `Data/` at the repository root, along with everything else from this
-round except this README and the notebook beside it. Its defaults are relative to `Data/`
+The script lives in `src/` at the repository root, along with everything else from this
+round except this README and the notebook beside it. Its defaults are relative to `src/`
 -- the corpus is read from `Piloting/Round 2/`, and output is written under
-`Data/output/corpora/` -- so run it from there.
+`src/output/corpora/` -- so run it from there.
 
 ```bash
 pip install openai tqdm
 export GEMINI_API_KEY=...  OPENAI_API_KEY=...  OPENROUTER_API_KEY=...
 
-cd Data   # from the repository root
+cd src   # from the repository root
 
 # Always estimate first: prints workload and cost, makes no API calls
 python generate_synthetic.py --dry-run --n-ops 3000

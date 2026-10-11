@@ -17,30 +17,31 @@ contains 19,984 submissions and 40,537 top-level comments from r/AskDocs.
 
 ## Where things are
 
-All current work lives in [`Data/`](Data/) — code, documentation and output together.
+All current work lives in [`src/`](src/) — code, documentation and output together.
 `Piloting/` holds the pilot rounds that led up to it, as history, and is not maintained.
 
 | Looking for | It's in |
 |---|---|
-| **Topic labels for the 6,600 threads** (the current deliverable) | `Data/output/corpora/export/` |
-| The topic classification pipeline and what it did | [`Data/`](Data/) — start with its [README](Data/README.md) |
-| The current generation script | `Data/generate_synthetic.py` |
-| The hand-annotated 200-post sample and its adjudication | `Data/output/corpora/handcoding/` |
+| **Topic labels for the 6,600 threads** (the current deliverable) | `src/output/corpora/export/` |
+| The topic classification pipeline and what it did | [`src/`](src/) — start with its [README](src/README.md) |
+| The current generation script | `src/generate_synthetic.py` |
+| The hand-annotated 200-post sample and its adjudication | `src/output/corpora/handcoding/` |
 | Findings from the 3,000-thread run | [`Piloting/Round 5/README.md`](Piloting/Round%205/README.md) |
 | The corpus itself (gitignored, shared separately) | `Piloting/Round 2/*.jsonl` |
 | `requirements.txt` | `Piloting/Round 1/` |
 
-Two naming quirks worth knowing before you go looking:
+Two things worth knowing before you go looking:
 
-- **`Data/` holds the code, not the corpus.** It began as a home for the 6,600-thread
-  scale-up and grew into the whole current pipeline, so it now holds the scripts, the
-  documentation and the output. The source corpus lives in `Piloting/Round 2/`.
+- **`src/` holds the output too**, under `src/output/corpora/`, rather than at the
+  repository root. Every script's defaults are relative to its own directory, which keeps
+  them short. The source corpus is the exception and lives in `Piloting/Round 2/`.
 - **Large files are gitignored**, so the corpus, the generated comments, and the merged
-  analysis dataset are not on GitHub and are shared out of band. The directories will look
-  empty here. The topic labels are the exception: small enough to track, and checked in.
+  analysis dataset are not on GitHub and are shared out of band. Those directories will
+  look empty here. The topic labels and the annotated 200-post sample are the exceptions:
+  small enough to track, and checked in.
 
 ```
-Data/                            # ALL current work: code, docs and output
+src/                             # ALL current work: code, docs and output
   README.md                      # what the classification did and why -- read this first
   topic_classification_plan.md   # the full decision log
   taxonomy.json                  # the 17 disciplines and the codebook rules
@@ -103,7 +104,7 @@ pip install -r "Piloting/Round 1/requirements.txt"
 
 The generation and classification scripts additionally need `openai`, `tqdm` and
 `openpyxl`, plus API keys in the environment — `GEMINI_API_KEY`, `OPENAI_API_KEY`,
-`OPENROUTER_API_KEY`. `Data/sweep.sh` reads them from `Data/.env`, which is gitignored.
+`OPENROUTER_API_KEY`. `src/sweep.sh` reads them from `src/.env`, which is gitignored.
 
 ## Collaborators
 

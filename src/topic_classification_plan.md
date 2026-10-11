@@ -2,7 +2,7 @@
 
 The goal is to label the 6,600 threads by subject matter, to describe the corpus and to 
 test whether the real-vs-synthetic empathy gap varies by topic. The code for approaches 1
-and 2 is in `Data/` (see [Implementation](#implementation)). A 100-OP pilot has run; the
+and 2 is in `src/` (see [Implementation](#implementation)). A 100-OP pilot has run; the
 full run has not.
 
 ## Who produced the reference labels
@@ -73,7 +73,7 @@ publishable.
 
 ## Implementation
 
-In `Data/`, at the repository root. Run in this order:
+In `src/`, at the repository root. Run in this order:
 
 | File | What it does |
 |---|---|
@@ -85,7 +85,7 @@ In `Data/`, at the repository root. Run in this order:
 | `score_handcoding.py` | Inter-annotator agreement, the gold standard, the adjudication queue, and the classifier's precision/recall against it. |
 
 ```bash
-cd Data
+cd src
 python build_handcoding_sheets.py                    # first: code 200 OPs blind
 python score_handcoding.py                           # agreement + gold standard
 

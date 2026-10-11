@@ -10,7 +10,7 @@ This short README explains what was done and why.
 Label all 6,600 r/AskDocs threads by medical subject, so the real-vs-synthetic empathy gap
 can be tested for variation by topic.
 
-The labels are in `Data/output/corpora/export/topic_labels.csv`, which joins to the analysis
+The labels are in `src/output/corpora/export/topic_labels.csv`, which joins to the analysis
 dataset on `submission_id` and is ready for use as an independent variable.
 
 ## What I did
@@ -98,7 +98,7 @@ A null topic effect is therefore weaker evidence of no effect than a clean moder
 Run order: hand-coding first, then classification, then scoring.
 
 ```bash
-cd Data
+cd src
 python build_handcoding_sheets.py       # 1. two blind workbooks, 200 posts
 python score_handcoding.py              # 2. agreement, gold standard, adjudication queue
 python classify_topics.py --dry-run     # 3. cost estimate, always first
@@ -109,7 +109,7 @@ python export_labels.py                 # 6. the deliverable
 
 Corpus input is `../Piloting/Round 2/`; output goes under
 `output/corpora/`. Needs `GEMINI_API_KEY`, which `sweep.sh` reads from
-`Data/.env`.
+`src/.env`.
 
 ## What was not done, and why
 
