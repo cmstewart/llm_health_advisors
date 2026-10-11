@@ -5,6 +5,24 @@ test whether the real-vs-synthetic empathy gap varies by topic. The code for app
 and 2 is in `Data/` (see [Implementation](#implementation)). A 100-OP pilot has run; the
 full run has not.
 
+## Who produced the reference labels
+
+**The 200-post reference sample was annotated by two LLMs, not by human coders.** The
+annotation was outsourced; two models (Claude Sonnet 5.5 and GPT-6) labelled the same 200
+posts independently, and a human adjudicated the 41 posts where they disagreed, plus one
+post where a codebook rule overrode their agreement.
+
+This matters for how every number below should be read. The agreement figure of kappa
+0.779 is inter-model agreement, not a human ceiling, and the production labels come from
+a third model (Gemini 2.5 Pro). The chain is therefore LLM judgement throughout with
+human arbitration at the margin: 159 of the 200 reference labels are unadjudicated
+agreement between the two annotators, and 41 were set by a human. It is a consistency
+check rather than an independent validation, and it weakens the moderator accordingly.
+It was a deliberate trade for time and should be reported as one.
+
+The sections below were written while the annotation was expected to be human; where they
+say "coder" or "hand-coding", read "LLM annotator" and "annotation".
+
 ## Approach
 
 Topic models are typically unsupervised. For example, BERTopic finds whatever structure 
@@ -93,7 +111,7 @@ Decisions worth recording, since the plan commits to publishing them:
   the organ system is coded only when the post's primary concern is a non-malignant
   problem alongside a cancer history. This follows the ICD-10 chapter convention the
   taxonomy is built on. It lives in `taxonomy.json` as `category_rules` and is rendered
-  into the prompt, so the classifier and the human coders are held to one rubric —
+  into the prompt, so the production model and the annotators are held to one rubric —
   scoring the model against a rule it was never given would understate it.
 - **"Survivor" is used in the restricted sense**, not the NCI/NCCS sense. NCI counts
   anyone from diagnosis onward as a survivor, which would place every current patient in
@@ -171,13 +189,13 @@ contiguous span and the checker handles both shapes, which took the measured rat
 
 ### Validation result (6,600 posts labelled; 200 hand-coded)
 
-**The classifier performs at the human ceiling.** Against the adjudicated gold standard
+**The production model agrees with the reference standard as often as the two annotators agree with each other.** Against the adjudicated gold standard
 it is right on 154 of 200 posts, accuracy 0.770 (95% CI 0.712-0.828), macro-F1
-0.726. The two coders agreed with each other on 0.795 of the same posts (kappa 0.779,
+0.726. The two LLM annotators agreed with each other on 0.795 of the same posts (kappa 0.779,
 95% CI 0.718-0.839). The 2.5-point gap between 0.770 and 0.795 sits inside the interval,
-so the model's disagreement with the gold is about as large as two trained humans'
-disagreement with each other, and no better performance could be demonstrated on this
-scheme without first improving the humans.
+so the production model disagrees with the reference standard about as much as the two
+annotators disagree with each other. Since all three are language models, this
+demonstrates consistency rather than accuracy.
 
 `cancer_relevant` is stronger: accuracy 0.977 with recall 1.00 and precision 0.80 on the
 labelled subset. It missed no cancer-relevant post and over-flagged one.

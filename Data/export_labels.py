@@ -9,15 +9,16 @@ properties an analyst needs and cannot recover from the CSV itself.
 
 One deliberate choice about the discipline column
 -------------------------------------------------
-`discipline` is the MODEL's label for every row, including the 200 posts that
-were hand-coded. It is tempting to substitute the human label where we have one,
-but that would make 3% of the corpus better-measured than the rest, and
-differential measurement error in a moderator is worse than uniform error: it
-biases the interaction estimates unevenly across topics.
+`discipline` is the production model's label for every row, including the 200
+posts in the reference sample. It is tempting to substitute the reference label
+where we have one, but that would make 3% of the corpus measured differently
+from the rest, and differential measurement error in a moderator is worse than
+uniform error: it biases the interaction estimates unevenly across topics.
 
-The human labels ship in `discipline_gold`, flagged by `in_validation_sample`,
-so the analyst can use them as a validation subset, estimate the attenuation, or
-overrule this choice deliberately rather than by accident.
+The reference labels ship in `discipline_gold`, flagged by
+`in_validation_sample`, so the analyst can use them as a comparison subset,
+estimate the attenuation, or overrule this choice deliberately rather than by
+accident.
 
 Usage
 -----
@@ -59,7 +60,7 @@ def read_jsonl(path: Path) -> dict[str, dict]:
 
 
 def build_gold(hc_dir: Path, adj_path: Path | None) -> tuple[dict, dict, set, dict]:
-    """Human gold: coder consensus, then adjudication, then rules. Mirrors score_handcoding."""
+    """Reference standard: annotator consensus, then adjudication, then rules."""
     books = sorted(hc_dir.glob("handcode_*_*.xlsx"))
     coders = {b.stem.rsplit("_", 1)[-1]: read_coder(b) for b in books}
     if not coders:
@@ -131,9 +132,12 @@ def main() -> None:
             sys.exit(f"ERROR: {msg}")
         print(f"WARNING: {msg}")
 
+    adj_path_used = Path(args.adjudicated) if args.adjudicated else None
+    if adj_path_used and not adj_path_used.exists():
+        adj_path_used = None
     gold_disc, gold_cancer, contested, coders = build_gold(
-        Path(args.handcoding_dir), Path(args.adjudicated) if args.adjudicated else None)
-    print(f"human gold:        {len(gold_disc):,} posts "
+        Path(args.handcoding_dir), adj_path_used)
+    print(f"reference labels:  {len(gold_disc):,} posts "
           f"({len(contested)} contested)")
 
     out_dir = Path(args.out_dir)
@@ -166,6 +170,16 @@ def main() -> None:
     print(f"\nwrote {csv_path}  ({len(ids):,} rows)")
 
     # --- accuracy against the gold, for the dictionary ----------------------
+    # How much of the reference standard is human-adjudicated rather than
+    # unadjudicated agreement between the two LLM annotators. Reported, because
+    # it is the honest measure of how much human judgement the gold contains.
+    n_adjudicated = 0
+    n_consensus = None
+    if adj_path_used:
+        adjudged_ids, _ = read_adjudications(adj_path_used)
+        n_adjudicated = sum(1 for i in adjudged_ids if i in gold_disc)
+        n_consensus = len(gold_disc) - n_adjudicated
+
     both = [i for i in gold_disc if i in disc]
     acc = (sum(1 for i in both if disc[i]["label"] == gold_disc[i]) / len(both)
            if both else None)
@@ -204,9 +218,9 @@ def main() -> None:
                                  "is 1.0 almost everywhere. Do not filter on it."),
             ("evidence_quote_verified", "Whether the model's supporting quote was found "
                                         "verbatim in the post. A weak per-row quality flag."),
-            ("in_validation_sample", "TRUE for the 200 hand-coded posts."),
-            ("discipline_gold", "Human label where it exists, else blank."),
-            ("cancer_relevant_gold", "Human cancer flag where it exists."),
+            ("in_validation_sample", "TRUE for the 200 posts in the reference sample."),
+            ("discipline_gold", "Reference label where it exists, else blank."),
+            ("cancer_relevant_gold", "Reference cancer flag where it exists."),
             ("discipline_contested", "TRUE where the adjudicators recorded the post as "
                                      "genuinely ambiguous."),
             ("label_model", "Model id that produced the label."),
@@ -214,28 +228,43 @@ def main() -> None:
             W(f"| `{c}` | {m} |\n")
 
         W("\n## Use `discipline` for all rows, not a mix\n\n")
-        W("`discipline` is the model's label even on the 200 hand-coded posts. "
-          "Substituting human labels there would make 3% of the corpus "
-          "better-measured than the rest, and differential measurement error in a "
-          "moderator distorts interaction estimates unevenly across topics. The human "
-          "labels are in `discipline_gold` for validation, attenuation estimates, or a "
-          "deliberate override.\n\n")
+        W("`discipline` is the production model's label even on the 200 posts in the "
+          "reference sample. Substituting the reference label there would make 3% of "
+          "the corpus measured differently from the rest, and differential measurement "
+          "error in a moderator distorts interaction estimates unevenly across topics. "
+          "The reference labels are in `discipline_gold` for comparison, attenuation "
+          "estimates, or a deliberate override.\n\n")
 
         W("## Measurement properties you need\n\n")
+        W("**Read this before treating `discipline_gold` as ground truth.** The 200-post "
+          "reference sample was labelled by two LLM annotators, not by human coders. A "
+          "human adjudicated only the posts where the two disagreed. So the reference "
+          "standard is mostly inter-model consensus, and the production labels come from "
+          "a third model. That is a consistency check, not an independent validation: "
+          "the whole chain is LLM judgement with human arbitration at the margin. It was "
+          "a deliberate trade for time and should be reported as such.\n\n")
+        if n_consensus is not None:
+            W(f"- **How much human judgement is in the reference standard:** "
+              f"{n_adjudicated} of {len(gold_disc)} labels were set by a human "
+              f"adjudicating a disagreement ({100*n_adjudicated/max(len(gold_disc),1):.0f}%). "
+              f"The other {n_consensus} are unadjudicated agreement between the two "
+              f"LLM annotators.\n")
         if iaa and iaa.get("kappa") is not None:
             lo, hi = iaa["ci"]
-            W(f"- **Human ceiling.** Two coders independently labelled 200 posts: raw "
+            W(f"- **Inter-annotator agreement** between the two LLM annotators: raw "
               f"agreement {iaa['observed']:.3f}, Cohen's kappa {iaa['kappa']:.3f} "
-              f"(95% CI {lo:.3f}-{hi:.3f}). This bounds what any classifier can be "
-              f"shown to achieve.\n")
+              f"(95% CI {lo:.3f}-{hi:.3f}). Treat it as a reference point for the "
+              f"production model rather than as a human ceiling.\n")
         if acc is not None:
-            W(f"- **Classifier accuracy** against the adjudicated gold: {acc:.3f} "
-              f"on {len(both)} posts.\n")
+            W(f"- **Production model agreement** with the adjudicated reference: "
+              f"{acc:.3f} on {len(both)} posts.\n")
         W("- **So the moderator carries real misclassification.** Roughly one label in "
-          "four disagrees with the human gold. Misclassification in a moderator "
+          "four disagrees with the reference standard. Misclassification in a moderator "
           "attenuates interaction estimates toward zero, so a null topic effect is "
           "weaker evidence of no effect than it would be with a clean moderator. Worth "
-          "either an attenuation correction or an explicit caveat.\n")
+          "either an attenuation correction or an explicit caveat. Note that the "
+          "reference standard itself carries unmeasured error, so this is a floor on the "
+          "true misclassification rate, not an estimate of it.\n")
         W("- **`Nonmedical` and `Medical; other` are residual categories**, not topics. "
           "They collect posts that fit nothing else. Treating them as substantive "
           "levels will produce uninterpretable coefficients; consider dropping or "

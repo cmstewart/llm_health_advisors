@@ -42,7 +42,7 @@ Data/                         # scale-up generation + topic classification (code
   README.md                   #   what the classification did and why -- read this first
   taxonomy.json               #   the 17 disciplines and the codebook rules
   classify_topics.py          #   LLM labeller
-  build_handcoding_sheets.py  #   blind workbooks for human coders
+  build_handcoding_sheets.py  #   blind annotation workbooks (200-post sample)
   score_handcoding.py         #   agreement, gold standard, classifier accuracy
   agreement.py                #   cancer consensus, prevalence, power
   export_labels.py            #   produces the deliverable

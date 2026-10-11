@@ -10,12 +10,12 @@ This short README explains what was done and why.
 Label all 6,600 r/AskDocs threads by medical subject, so the real-vs-synthetic empathy gap
 can be tested for variation by topic.
 
-The lables are in `Piloting/Round 5/output/corpora/export/topic_labels.csv`, which joins to the analysis
+The labels are in `Piloting/Round 5/output/corpora/export/topic_labels.csv`, which joins to the analysis
 dataset on `submission_id` and is ready for use as an independent variable.
 
 ## What I did
 
-I sampled 200 of the threads, use the ([Chan et al. 2025](https://formative.jmir.org/2025/1/e55309) taxonomy
+I sampled 200 of the threads, used the [Chan et al. 2025](https://formative.jmir.org/2025/1/e55309) taxonomy
 to label them and iron out issues, generated topic labels with 2 LLMs (Claude Sonnet 5.5 and GPT-6),
 isolated the 41 threads where the models disagreed, manually adjudicated between the two labels. This
 provided a level of ground truth. I then labeled all of the posts with a separate LLM (Gemini 2.5 Pro) with
@@ -71,7 +71,7 @@ Two things the full run settled:
 - **Cancer vs rest is adequately powered, but current-patient vs survivor is not.** The cancer
   flag fires on 7.8% of posts, five times what the oncology node alone implied. But most
   of those are a relative's cancer or no diagnosis at all, leaving 18 current patients
-  against 38 survivors. The contrast that needs a cancer-enriched sample, not more
+  against 38 survivors. That contrast needs a cancer-enriched sample rather than more
   labelling, but the labels are collected so it can be revisited.
 
 ## The caveat that matters downstream
@@ -87,7 +87,7 @@ A null topic effect is therefore weaker evidence of no effect than a clean moder
 |---|---|
 | `taxonomy.json` | The 17 disciplines and the codebook rules. No category name is hardcoded in Python. |
 | `classify_topics.py` | Labeller A. Discipline and cancer tasks over the corpus. |
-| `build_handcoding_sheets.py` | Blind workbooks for the human coders. |
+| `build_handcoding_sheets.py` | Blind annotation workbooks for the 200-post sample. |
 | `score_handcoding.py` | Inter-annotator agreement, gold standard, adjudication queue, classifier accuracy. |
 | `agreement.py` | Cancer consensus, prevalence and power. |
 | `export_labels.py` | The deliverable: CSV plus a data dictionary. |

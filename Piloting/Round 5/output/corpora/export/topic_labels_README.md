@@ -1,6 +1,6 @@
 # Topic labels for the r/AskDocs real-vs-synthetic analysis
 
-Generated 2026-10-08 from `topic_labels.csv`. 6,600 posts.
+Generated 2026-10-11 from `topic_labels.csv`. 6,600 posts.
 
 Join to the analysis dataset on `submission_id`. Same corpus and same seed (42) as the generation run, so the ids line up exactly.
 
@@ -14,21 +14,24 @@ Join to the analysis dataset on `submission_id`. Same corpus and same seed (42) 
 | `cancer_stance` | current_patient / survivor / not_applicable / unclear. Collected but DEFERRED from the analysis -- see below. |
 | `model_confidence` | Model's self-reported confidence. Near-useless: it is 1.0 almost everywhere. Do not filter on it. |
 | `evidence_quote_verified` | Whether the model's supporting quote was found verbatim in the post. A weak per-row quality flag. |
-| `in_validation_sample` | TRUE for the 200 hand-coded posts. |
-| `discipline_gold` | Human label where it exists, else blank. |
-| `cancer_relevant_gold` | Human cancer flag where it exists. |
+| `in_validation_sample` | TRUE for the 200 posts in the reference sample. |
+| `discipline_gold` | Reference label where it exists, else blank. |
+| `cancer_relevant_gold` | Reference cancer flag where it exists. |
 | `discipline_contested` | TRUE where the adjudicators recorded the post as genuinely ambiguous. |
 | `label_model` | Model id that produced the label. |
 
 ## Use `discipline` for all rows, not a mix
 
-`discipline` is the model's label even on the 200 hand-coded posts. Substituting human labels there would make 3% of the corpus better-measured than the rest, and differential measurement error in a moderator distorts interaction estimates unevenly across topics. The human labels are in `discipline_gold` for validation, attenuation estimates, or a deliberate override.
+`discipline` is the production model's label even on the 200 posts in the reference sample. Substituting the reference label there would make 3% of the corpus measured differently from the rest, and differential measurement error in a moderator distorts interaction estimates unevenly across topics. The reference labels are in `discipline_gold` for comparison, attenuation estimates, or a deliberate override.
 
 ## Measurement properties you need
 
-- **Human ceiling.** Two coders independently labelled 200 posts: raw agreement 0.795, Cohen's kappa 0.779 (95% CI 0.718-0.839). This bounds what any classifier can be shown to achieve.
-- **Classifier accuracy** against the adjudicated gold: 0.770 on 200 posts.
-- **So the moderator carries real misclassification.** Roughly one label in four disagrees with the human gold. Misclassification in a moderator attenuates interaction estimates toward zero, so a null topic effect is weaker evidence of no effect than it would be with a clean moderator. Worth either an attenuation correction or an explicit caveat.
+**Read this before treating `discipline_gold` as ground truth.** The 200-post reference sample was labelled by two LLM annotators, not by human coders. A human adjudicated only the posts where the two disagreed. So the reference standard is mostly inter-model consensus, and the production labels come from a third model. That is a consistency check, not an independent validation: the whole chain is LLM judgement with human arbitration at the margin. It was a deliberate trade for time and should be reported as such.
+
+- **How much human judgement is in the reference standard:** 42 of 200 labels were set by a human adjudicating a disagreement (21%). The other 158 are unadjudicated agreement between the two LLM annotators.
+- **Inter-annotator agreement** between the two LLM annotators: raw agreement 0.795, Cohen's kappa 0.779 (95% CI 0.718-0.839). Treat it as a reference point for the production model rather than as a human ceiling.
+- **Production model agreement** with the adjudicated reference: 0.770 on 200 posts.
+- **So the moderator carries real misclassification.** Roughly one label in four disagrees with the reference standard. Misclassification in a moderator attenuates interaction estimates toward zero, so a null topic effect is weaker evidence of no effect than it would be with a clean moderator. Worth either an attenuation correction or an explicit caveat. Note that the reference standard itself carries unmeasured error, so this is a floor on the true misclassification rate, not an estimate of it.
 - **`Nonmedical` and `Medical; other` are residual categories**, not topics. They collect posts that fit nothing else. Treating them as substantive levels will produce uninterpretable coefficients; consider dropping or pooling them.
 - **`Neoplasms` follows the ICD-10 chapter**, so it covers benign neoplasms as well as malignant, and a malignancy counts only once a clinician or test has raised it. It is not the same variable as `cancer_relevant`.
 - **`cancer_stance` is deferred.** current_patient vs survivor was dropped from the analysis as underpowered; the labels are collected so it can be revisited post hoc.

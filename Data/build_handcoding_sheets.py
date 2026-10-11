@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """
-Build blind hand-coding workbooks: the validation step the plan puts first.
+Build blind annotation workbooks: the validation step the plan puts first.
+
+NOTE ON WHAT ACTUALLY HAPPENED. This script was written for human coders, and
+its instructions sheet addresses one. In practice the annotation was outsourced
+and the two workbooks were filled by two LLMs, with a human adjudicating only
+their disagreements. The agreement figure that comes out of score_handcoding.py
+is therefore inter-model agreement, not a human ceiling. The codebook below is
+unaffected and remains the rubric both the annotators and the production model
+were held to.
 
 From Piloting/Round 5/topic_classification_plan.md: "We can hand-code 200 random
 OPs before seeing any automated output, ideally two coders. We should report

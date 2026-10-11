@@ -7,11 +7,14 @@ inter-annotator agreement as the ceiling on automated performance."
 
 It reports, in this order, because each step bounds the next:
 
-  1. Inter-annotator agreement between the coders. This is the ceiling. If two
-     trained humans agree only 70% of the time on a category, no classifier can
-     be meaningfully said to exceed that on it.
-  2. The gold standard: the OPs both coders agreed on. Disagreements are written
-     to an adjudication queue rather than silently resolved by picking one coder.
+  1. Inter-annotator agreement between the two annotators. NOTE: in this project
+     the 200-post reference sample was annotated by two LLMs, not by human
+     coders, with a human adjudicating only their disagreements. So this figure
+     is inter-model agreement and a reference point, not a human ceiling, and
+     the production model being scored against it is a third LLM.
+  2. The reference standard: the OPs both annotators agreed on. Disagreements
+     are written to an adjudication queue for a human rather than silently
+     resolved by picking one annotator.
   3. The classifier against that gold: accuracy, macro-F1, and per-class
      precision/recall/F1 for discipline; precision/recall/F1 for cancer_relevant.
 
@@ -291,8 +294,8 @@ def main() -> None:
                 lo, hi = k["ci"]
                 print(f"    kappa {k['kappa']:.3f} (95% CI {lo:.3f} to {hi:.3f}) "
                       f"-- {interpret(k['kappa'])}")
-            print("    This is the ceiling: a classifier cannot be shown to beat the")
-            print("    agreement of the humans defining the target.")
+            print("    Reference point, not a human ceiling: in this project both")
+            print("    annotators were LLMs and the scored model is a third one.")
 
         bothc = [i for i in sorted(set(ca) & set(cb))
                  if ca[i]["cancer_relevant"] and cb[i]["cancer_relevant"]]
