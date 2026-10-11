@@ -17,51 +17,56 @@ contains 19,984 submissions and 40,537 top-level comments from r/AskDocs.
 
 ## Where things are
 
-The work is organised by **round**, each a successive experiment. `Piloting/Round 5/` is
-the current one; rounds 1–4 are kept as history and are not maintained.
+All current work lives in [`Data/`](Data/) — code, documentation and output together.
+`Piloting/` holds the pilot rounds that led up to it, as history, and is not maintained.
 
 | Looking for | It's in |
 |---|---|
-| **Topic labels for the 6,600 threads** (the current deliverable) | `Piloting/Round 5/output/corpora/export/` |
+| **Topic labels for the 6,600 threads** (the current deliverable) | `Data/output/corpora/export/` |
 | The topic classification pipeline and what it did | [`Data/`](Data/) — start with its [README](Data/README.md) |
 | The current generation script | `Data/generate_synthetic.py` |
-| Round 5 findings | [`Piloting/Round 5/README.md`](Piloting/Round%205/README.md) |
+| The hand-annotated 200-post sample and its adjudication | `Data/output/corpora/handcoding/` |
+| Findings from the 3,000-thread run | [`Piloting/Round 5/README.md`](Piloting/Round%205/README.md) |
 | The corpus itself (gitignored, shared separately) | `Piloting/Round 2/*.jsonl` |
 | `requirements.txt` | `Piloting/Round 1/` |
 
 Two naming quirks worth knowing before you go looking:
 
-- **`Data/` holds code, not data.** It began as a home for the 6,600-thread scale-up and
-  grew into the topic classification pipeline. The corpus lives in `Piloting/Round 2/`.
+- **`Data/` holds the code, not the corpus.** It began as a home for the 6,600-thread
+  scale-up and grew into the whole current pipeline, so it now holds the scripts, the
+  documentation and the output. The source corpus lives in `Piloting/Round 2/`.
 - **Large files are gitignored**, so the corpus, the generated comments, and the merged
   analysis dataset are not on GitHub and are shared out of band. The directories will look
   empty here. The topic labels are the exception: small enough to track, and checked in.
 
 ```
-Data/                         # scale-up generation + topic classification (code)
-  README.md                   #   what the classification did and why -- read this first
-  taxonomy.json               #   the 17 disciplines and the codebook rules
-  classify_topics.py          #   LLM labeller
-  build_handcoding_sheets.py  #   blind annotation workbooks (200-post sample)
-  score_handcoding.py         #   agreement, gold standard, classifier accuracy
-  agreement.py                #   cancer consensus, prevalence, power
-  export_labels.py            #   produces the deliverable
-  generate_synthetic.py       #   Round 5 generation script
-  SCALEUP_6600.md             #   runbook for the 6,600-thread generation
-  power_analysis.md           #   why 6,600 rather than 3,000
+Data/                            # ALL current work: code, docs and output
+  README.md                      # what the classification did and why -- read this first
+  topic_classification_plan.md   # the full decision log
+  taxonomy.json                  # the 17 disciplines and the codebook rules
+  classify_topics.py             # LLM labeller
+  build_handcoding_sheets.py     # blind annotation workbooks (200-post sample)
+  score_handcoding.py            # agreement, reference standard, model accuracy
+  agreement.py                   # cancer consensus, prevalence, power
+  export_labels.py               # produces the deliverable
+  build_analysis_dataset.py      # merges corpus + generated output
+  build_review_spreadsheet.py    # per-thread spreadsheet for manual reading
+  generate_synthetic.py          # the generation script
+  sweep.sh                       # re-runs the labeller until the corpus is done
+  SCALEUP_6600.md                # runbook for the 6,600-thread generation
+  power_analysis.md              # why 6,600 rather than 3,000
+  5_exploratory_analysis_6600.ipynb
+  output/corpora/                # output (mostly gitignored)
+    export/                      #   the topic labels -- checked in
+    handcoding/                  #   the 200-post sample and its adjudication -- checked in
+    labels/ generated/           #   raw model output -- gitignored
 
-Piloting/
+Piloting/                        # history; not maintained
   Round 1/   corpus construction from Arctic Shift .zst archives; requirements.txt
   Round 2/   the built corpus (gitignored JSONL) and an early generation notebook
   Round 3/   DG / SAG / SAGII prompting strategies introduced
   Round 4/   clinician-only design, 100 threads, one model; empathy instruction removed
-  Round 5/   scale-up to 3,000 then 6,600 threads across three models; current work
-    README.md                      findings
-    topic_classification_plan.md   the topic labelling decision log
-    5_exploratory_analysis.ipynb   analysis of the 3,000-thread run
-    build_analysis_dataset.py      merges corpus + generated output
-    output/corpora/                all Round 5 output (mostly gitignored)
-      export/                      the topic labels -- checked in
+  Round 5/   the 3,000-thread run: its findings README and analysis notebook
 ```
 
 ## Prompting strategies

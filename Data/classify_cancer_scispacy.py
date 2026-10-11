@@ -40,7 +40,7 @@ https://uts.nlm.nih.gov/uts/signup-login for the licence terms.
 Usage
 -----
   python classify_cancer_scispacy.py \
-      --from-analysis-dataset "../Piloting/Round 5/output/corpora/analysis_dataset_6600.jsonl"
+      --from-analysis-dataset "output/corpora/analysis_dataset_6600.jsonl"
 
   # Check the install and the cancer-concept filter on a handful of posts
   python classify_cancer_scispacy.py --self-test
@@ -280,7 +280,7 @@ def main() -> None:
     )
     ap.add_argument("--from-analysis-dataset", default=None, metavar="PATH")
     ap.add_argument("--corpora-dir", default="../Piloting/Round 2")
-    ap.add_argument("--out-dir", default="../Piloting/Round 5/output/corpora/labels")
+    ap.add_argument("--out-dir", default="output/corpora/labels")
     ap.add_argument("--spacy-model", default="en_core_sci_sm",
                     help="en_core_sci_sm is enough for entity spans; en_core_sci_md "
                          "detects slightly more at ~5x the size")

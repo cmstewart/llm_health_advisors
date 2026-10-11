@@ -17,7 +17,7 @@ set -u
 cd "$(dirname "$0")"
 set -a; . ./.env; set +a
 
-LABELS="../Piloting/Round 5/output/corpora/labels"
+LABELS="output/corpora/labels"
 N=${N:-6600}
 MAX=${MAX:-15}
 CONC=${CONC:-10}

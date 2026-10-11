@@ -20,7 +20,7 @@ OPs are skipped.
 1. **Top up Gemini credits.** This is what failed last time, 675 calls deep into SAGII.
    Budget ~$40 at [ai.studio](https://ai.studio/projects).
 2. **Confirm OpenRouter and OpenAI balances.** Roughly $50 and $100 respectively.
-3. **Locate your existing checkpoints.** `Piloting/Round 5/output/corpora/generated/*.jsonl`, nine files of
+3. **Locate your existing checkpoints.** `Data/output/corpora/generated/*.jsonl`, nine files of
    3,000 records each. These must go onto the VM or the run will regenerate work you have
    already paid for.
 
@@ -65,7 +65,7 @@ gcloud compute scp --zone=us-central1-a \
 
 # The checkpoints. Skipping this step costs you ~$150 in regenerated work.
 gcloud compute scp --zone=us-central1-a \
-  "../Piloting/Round 5/output/corpora/generated/"*.jsonl \
+  "output/corpora/generated/"*.jsonl \
   askdocs-gen:~/generated/
 ```
 
@@ -139,17 +139,15 @@ print('TOTAL defective:', t)
 Nine files at 6,600 records each. Then, from your Mac:
 
 ```bash
-gcloud compute scp --recurse --zone=us-central1-a askdocs-gen:~/generated "../Piloting/Round 5/output/corpora/"
+gcloud compute scp --recurse --zone=us-central1-a askdocs-gen:~/generated "output/corpora/"
 gcloud compute instances delete askdocs-gen --zone=us-central1-a
 ```
 
 ### 7. Rebuild the analysis inputs
 
-These two scripts live in `Piloting/Round 5/` and read their paths relative to that
-directory, so run them from there:
+These two scripts live alongside this one in `Data/`:
 
 ```bash
-cd "../Piloting/Round 5"   # from Data/
 python build_analysis_dataset.py --gzip
 python build_review_spreadsheet.py --n-ops 10
 ```

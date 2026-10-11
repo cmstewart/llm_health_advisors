@@ -53,7 +53,7 @@ Usage
 
   # Both tasks over the analysis dataset
   python classify_topics.py \
-      --from-analysis-dataset "../Piloting/Round 5/output/corpora/analysis_dataset_6600.jsonl"
+      --from-analysis-dataset "output/corpora/analysis_dataset_6600.jsonl"
 
   # Discipline only, and with a second model as an LLM-vs-LLM check
   python classify_topics.py --tasks discipline --models gemini,openai
@@ -855,7 +855,7 @@ def parse_args(argv=None):
                         "preferred over re-deriving it)")
     p.add_argument("--corpora-dir", default="../Piloting/Round 2",
                    help="used when --from-analysis-dataset is not given")
-    p.add_argument("--out-dir", default="../Piloting/Round 5/output/corpora/labels",
+    p.add_argument("--out-dir", default="output/corpora/labels",
                    help="where label checkpoints are written")
     p.add_argument("--models", default="gemini",
                    help="comma-separated labeller-A models: gemini,openai,grok. More "

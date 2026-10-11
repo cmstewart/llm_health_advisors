@@ -90,7 +90,7 @@ python build_handcoding_sheets.py                    # first: code 200 OPs blind
 python score_handcoding.py                           # agreement + gold standard
 
 python classify_topics.py --dry-run --n-ops 6600     # cost first, always
-python classify_topics.py --from-analysis-dataset "../Piloting/Round 5/output/corpora/analysis_dataset_6600.jsonl"
+python classify_topics.py --from-analysis-dataset "output/corpora/analysis_dataset_6600.jsonl"
 python classify_cancer_scispacy.py --from-analysis-dataset "...same..."
 python agreement.py
 ```

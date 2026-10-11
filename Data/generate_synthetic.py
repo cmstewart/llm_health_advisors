@@ -688,7 +688,7 @@ def parse_args(argv=None):
     )
     p.add_argument("--corpora-dir", default="../Piloting/Round 2",
                    help="directory holding submissions_corpus.jsonl / comments_corpus.jsonl")
-    p.add_argument("--out-dir", default="../Piloting/Round 5/output/corpora/generated",
+    p.add_argument("--out-dir", default="output/corpora/generated",
                    help="where per-(model,strategy) JSONL checkpoints are written")
     p.add_argument("--models", default="gemini,openai,grok",
                    help="comma-separated: gemini,openai,grok")

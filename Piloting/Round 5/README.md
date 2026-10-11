@@ -47,15 +47,20 @@ the question-mark proxy with the actual measure.
 
 ## Files
 
+This README and `5_exploratory_analysis.ipynb` beside it are the record of the
+3,000-thread run. Everything else from this round now lives in `Data/` at the repository
+root, with the 6,600-thread work it grew into:
+
 - `5_exploratory_analysis.ipynb` — the analysis above, with outputs
-- `build_analysis_dataset.py` — merges corpus and generated output into one analysis file
-- `build_review_spreadsheet.py` — builds a per-thread review spreadsheet for manual reading
-- `Data/` (at the repository root) — the decision and code for extending the sample (see below)
+- `Data/build_analysis_dataset.py` — merges corpus and generated output into one analysis file
+- `Data/build_review_spreadsheet.py` — builds a per-thread review spreadsheet for manual reading
+- `Data/topic_classification_plan.md` — the topic labelling decision log
+- `Data/output/corpora/` — all output from this round and the scale-up
 
 ## Ramping up to 6,600 threads
 
 `Data/` at the repository root holds the sample size analysis and the tooling to extend the
-run (it was previously `ramp_up_6600/` at this level):
+run:
 
 - `power_analysis.md` — why 6,600 rather than stopping at 3,000 or going to the full corpus
 - `SCALEUP_6600.md` — step-by-step runbook for the incremental generation
@@ -73,19 +78,20 @@ precision on effects that are already resolved.
 The notebook reads `analysis_dataset.jsonl`, one record per thread containing the OP, its
 real comments, and all nine synthetic sets. It is 26.7 MB (7.7 MB gzipped) and is **not in
 this repository**; it is shared separately via Google Drive. Place it in
-`output/corpora/` and the notebook will find it.
+`Data/output/corpora/` and the notebook will find it.
 
 To rebuild it from source:
 
 ```bash
-python build_analysis_dataset.py --gzip
+cd Data && python build_analysis_dataset.py --gzip
 ```
 
 ## Reproducing the generation
 
-The script lives in `Data/` at the repository root. Its defaults are relative to that
-directory -- the corpus is read from `Piloting/Round 2/`, and output is written under
-`Piloting/Round 5/output/corpora/` -- so run it from there.
+The script lives in `Data/` at the repository root, along with everything else from this
+round except this README and the notebook beside it. Its defaults are relative to `Data/`
+-- the corpus is read from `Piloting/Round 2/`, and output is written under
+`Data/output/corpora/` -- so run it from there.
 
 ```bash
 pip install openai tqdm

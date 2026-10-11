@@ -2,7 +2,7 @@
 
 This folder holds the scale-up generation script and the topic classification pipeline
 built on top of it. The detailed decision log is in
-[`../Piloting/Round 5/topic_classification_plan.md`](../Piloting/Round%205/topic_classification_plan.md).
+[`topic_classification_plan.md`](topic_classification_plan.md) beside it.
 This short README explains what was done and why.
 
 ## The goal
@@ -10,7 +10,7 @@ This short README explains what was done and why.
 Label all 6,600 r/AskDocs threads by medical subject, so the real-vs-synthetic empathy gap
 can be tested for variation by topic.
 
-The labels are in `Piloting/Round 5/output/corpora/export/topic_labels.csv`, which joins to the analysis
+The labels are in `Data/output/corpora/export/topic_labels.csv`, which joins to the analysis
 dataset on `submission_id` and is ready for use as an independent variable.
 
 ## What I did
@@ -108,7 +108,7 @@ python export_labels.py                 # 6. the deliverable
 ```
 
 Corpus input is `../Piloting/Round 2/`; output goes under
-`../Piloting/Round 5/output/corpora/`. Needs `GEMINI_API_KEY`, which `sweep.sh` reads from
+`output/corpora/`. Needs `GEMINI_API_KEY`, which `sweep.sh` reads from
 `Data/.env`.
 
 ## What was not done, and why

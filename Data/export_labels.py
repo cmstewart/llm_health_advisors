@@ -100,15 +100,15 @@ def main() -> None:
         description="Export topic labels and a data dictionary for the analyst.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    ap.add_argument("--labels-dir", default="../Piloting/Round 5/output/corpora/labels")
+    ap.add_argument("--labels-dir", default="output/corpora/labels")
     ap.add_argument("--handcoding-dir",
-                    default="../Piloting/Round 5/output/corpora/handcoding")
+                    default="output/corpora/handcoding")
     ap.add_argument("--adjudicated",
-                    default="../Piloting/Round 5/output/corpora/handcoding/"
+                    default="output/corpora/handcoding/"
                             "adjudication_recommended.xlsx")
     ap.add_argument("--taxonomy", default="taxonomy.json")
     ap.add_argument("--model", default="gemini")
-    ap.add_argument("--out-dir", default="../Piloting/Round 5/output/corpora/export")
+    ap.add_argument("--out-dir", default="output/corpora/export")
     ap.add_argument("--n-expected", type=int, default=6600)
     ap.add_argument("--require-complete", action="store_true",
                     help="exit rather than export a partial run")
