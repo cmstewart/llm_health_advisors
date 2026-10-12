@@ -15,38 +15,39 @@ dataset on `submission_id` and is ready for use as an independent variable.
 
 ## What I did
 
-I sampled 200 of the threads, used the [Chan et al. 2025](https://formative.jmir.org/2025/1/e55309) taxonomy
+I sampled 200 of the 6.6K threads, used the [Chan et al. 2025](https://formative.jmir.org/2025/1/e55309) taxonomy
 to label them and iron out issues, generated topic labels with 2 LLMs (Claude Sonnet 5.5 and GPT-6),
-isolated the 41 threads where the models disagreed, manually adjudicated between the two labels. This
-provided a level of ground truth. I then labeled all of the posts with a separate LLM (Gemini 2.5 Pro) with
-the same prompt.
+isolated the 41 threads where the models disagreed, and manually adjudicated between the two labels. This
+provided a level of ground truth for 200 posts. I then labeled all of the 6.6K posts with a separate LLM 
+(Gemini 2.5 Pro) using the same prompt.
 
 ## Why I did it
 
-**A fixed taxonomy rather than topic modelling.** Unsupervised methods like BERTopic find
-whatever structure exists and cannot be asked for a category of interest.
+**A fixed taxonomy rather than topic modelling:** Unsupervised methods like BERTopic find
+whatever structure exists and cannot be asked for a category of interest defined prior to
+classification.
 
-**The 17 disciplines come from a published taxonomy**
+**The 17 disciplines come from a published taxonomy:**
 ([Chan et al. 2025](https://formative.jmir.org/2025/1/e55309), Table 2), which groups them
-on ICD-10 chapters. Only the category names were borrowed. The labelling method is ours,
-and their 82 finer topics were too sparse at this sample size. Their reported frequencies
-are a prior about general Reddit, not a prediction about this subreddit. The data
-is a reflection of that.
+on ICD-10 chapters. Only the category names were borrowed. The labelling method is ours. We
+use the higher-level topics as their their 82 finer topics were too sparse at this sample size. 
+Their reported frequencies are a prior about general Reddit, not a prediction about this subreddit. 
+Our data and topic labels show this.
 
-**An LLM does the labelling.** Gemini 2.5 Pro was shown each post and picked one of the 17 
+**An LLM does the labelling:** Gemini 2.5 Pro was shown each post and picked one of the 17 
 topic labels from a closed list, returning a confidence and a supporting quote. 6,600 posts 
 is far too many to read by hand, and keyword matching was ruled out early on.
 
-**Two LLMs establish the ceiling.** Two pseudo-raters (Claude Sonnet 5.5 and GPT 6)
+**Two LLMs establish the ceiling:** Two pseudo-raters (Claude Sonnet 5.5 and GPT 6)
 labelled the same 200 posts blind. The 41 posts that they assigned different labels to were 
 adjudicated by a human.
 
-**Codebook rules are given to the model and the humans alike.** Where category boundaries
+**Codebook rules are given to the model and the humans alike:** Where category boundaries
 were genuinely ambiguous, rules were written and resolved by ICD-10 chapter. For example, 
 malignancies and benign neoplasms to `Neoplasms`, poisoning and exposures to `Medical; other`, and
 care-process questions to the complaint the post describes. Those rules can be found in `taxonomy.json`
-as data and are rendered into the prompt, because scoring a classifier against a rule it
-was never given would understate it.
+as data. They are rendered into the prompt as scoring a classifier against a rule it
+was never given would undersell its efficacy.
 
 ## What came out
 
@@ -59,27 +60,31 @@ was never given would understate it.
 | Labels | 6,600 discipline, 6,598 cancer |
 | Cost | ~$21 in API calls |
 
-**The classifier performs at the human/separate LLM ceiling.** The 2.5-point gap between 0.770 and
+**The task is often challenging:** There are many edge cases or instances where the label is not
+exactly clear. 
+
+**The classifier performs at the human/separate LLM ceiling:** The 2.5-point gap between 0.770 and
 0.795 sits inside the confidence interval, meaning that the model disagrees with the adjudicated gold
 about as much as the separate LLMs disagree with each other.
 
 Two things the full run settled:
 
 - **r/AskDocs does not resemble the source corpus.** Dermatology is the most common topic
-  label at 10.8% where the paper had psychiatry at 26.6%. People bring visible physical
-  complaints to an advice subreddit and take mental health elsewhere.
-- **Cancer vs rest is adequately powered, but current-patient vs survivor is not.** The cancer
+  label at 10.8% where the paper had psychiatry at 26.6%. Reddit users appear to bring visible
+  physical complaints to a medical advice subreddit and take mental health elsewhere.
+- **Cancer vs rest is adequately powered, but current-patient vs survivor is not:** The cancer
   flag fires on 7.8% of posts, five times what the oncology node alone implied. But most
   of those are a relative's cancer or no diagnosis at all, leaving 18 current patients
   against 38 survivors. That contrast needs a cancer-enriched sample rather than more
   labelling, but the labels are collected so it can be revisited.
 
-## The caveat that matters downstream
+## Using the labels as an independent variable
 
-Roughly **one label in four disagrees with the human/LLM golden labels**. That is not a defect,
-it is a ceiling. Misclassification in a moderator **attenuates interaction estimates toward zero**. 
-A null topic effect is therefore weaker evidence of no effect than a clean moderator would give. 
+`discipline` is a noisy predictor: about one label in four differs from the reference label
+for the same post. The two reference annotators disagreed with each other on about one post in five.
 
+That noise biases any topic effect toward zero. A null result is therefore weak evidence
+that topic doesn't matter, and an effect that does show up is probably understated.
 
 ## Files
 
@@ -113,16 +118,11 @@ Corpus input is `../Piloting/Round 2/`; output goes under
 
 ## What was not done, and why
 
-- **Labeller B (scispaCy).** The plan specified the cancer flag as dual-labelled, with
+- **Labeller B (scispaCy):** The plan specified the cancer flag as dual-labelled, with
   UMLS entity linking as a non-LLM second opinion. The code is here but was never
   installed, because the flag ended up validated against two LLMs and a human, a strictly
-  better reference than entity linking, which cannot read current-versus-past anyway.
-- **BERTopic coverage check.** Meant to test whether the fixed taxonomy misses real
+  better reference than entity linking.
+- **BERTopic coverage check:** Meant to test whether the fixed taxonomy misses real
   structure. The residual categories answer it for free: a taxonomy that failed to cover
   its domain would show a bloated `Medical; other`, and the two residuals together take
   only 6.1% of posts, with all 17 categories in use.
-- **The empathy measure itself.** Still the question-mark proxy rather than the three
-  EPITOME classifiers. This is the real outstanding item, and it belongs to whoever runs
-  the modelling: the proxy under-detects the mechanism in synthetic comments specifically,
-  and its blind spots may vary by topic — the same dimension the analysis tests. Note also
-  that the published EPITOME code ships no trained checkpoints.
