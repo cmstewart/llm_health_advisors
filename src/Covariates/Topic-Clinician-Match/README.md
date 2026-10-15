@@ -1,17 +1,15 @@
 # Does the first responder's specialty match the topic?
 
-Who answers each r/AskDocs thread first, and does their declared specialty fit what the
-post is about — a psychiatrist on a mental health question, a dermatologist on a rash?
+We want to know who answers each r/AskDocs thread first, and whether or not their declared
+specialty fit what the post is about, e.g. a psychiatrist on a mental health question, 
+a dermatologist on a rash. This involves making one covariate per thread for the 
+real-vs-synthetic empathy analysis. 
 
-One covariate per thread, for the real-vs-synthetic empathy analysis. If specialists
-self-select onto matching topics, "a clinician answered" means something different
-depending on the subject, and that is worth holding constant.
+## High-level finding
 
-## What it found
-
-**Responders match the subject, strongly.** Of the 1,130 threads whose first responder
+**Responders strongly match the subject:** Of the 1,130 threads whose first responder
 declared a specialty that maps to a body system, **57% were answered on-topic against 9%
-expected by chance — a 6.4× lift.** A lift of 1.0 is what you would see if responders
+expected by chance, a 6.4× lift.** A lift of 1.0 is what you would see if responders
 ignored the subject entirely.
 
 | Specialty | threads | authors | match | topic base rate | lift |
@@ -44,10 +42,11 @@ who reads it.
 from **two** accounts, 109 gastroenterology threads from **one**. Those rows describe
 individual prolific contributors, not "what dermatologists do". Psychiatry and neurology,
 at 8 and 9 authors, are the more trustworthy rows. Across the whole table, 1,130 threads
-come from just 42 accounts.
+come from just 42 accounts. This is a caveat that we should mention in our eventual 
+publications.
 
 **Most responders declare no specialty.** Only 17% of first responders give one that maps
-to a body system; 76% say just "Physician" or similar. Generalists (emergency, family,
+to a body system. 76% say just "Physician" or similar. Generalists (emergency, family,
 internal medicine, paediatrics — 3.5%) and cross-cutting specialties (radiology,
 pathology, surgery — 3.8%) are reported separately rather than counted as mismatches,
 since matching a body system is not their job. So this covers about a sixth of the corpus
@@ -75,7 +74,7 @@ python map_responder_roles.py
 ## How it works
 
 r/AskDocs flair is mod-verified and semi-structured — `Physician - Dermatologist | Top
-Contributor` — so the first segment gives the role and a later segment sometimes gives the
+Contributor`, so the first segment gives the role and a later segment sometimes gives the
 specialty. "Top Contributor" and "Moderator" are decoration and dropped. The first
 responder is the earliest top-level comment that is not the OP's own and not removed,
 which is the same filter the generation run used, so the thread set matches exactly.
