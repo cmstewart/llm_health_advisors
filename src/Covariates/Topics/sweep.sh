@@ -15,9 +15,9 @@
 #   N=6600 MAX=20 ./sweep.sh   # override target / pass limit
 set -u
 cd "$(dirname "$0")"
-set -a; . ./.env; set +a
+set -a; . ../../.env; set +a
 
-LABELS="output/corpora/labels"
+LABELS="../../output/corpora/labels"
 N=${N:-6600}
 MAX=${MAX:-15}
 CONC=${CONC:-10}

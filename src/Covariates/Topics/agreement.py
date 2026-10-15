@@ -35,7 +35,7 @@ Two kappas, and they are not equally meaningful
 Usage
 -----
   python agreement.py
-  python agreement.py --labels-dir "output/corpora/labels"
+  python agreement.py --labels-dir "../../output/corpora/labels"
 """
 
 from __future__ import annotations
@@ -413,9 +413,9 @@ def main() -> None:
         description="Agreement, consensus and manual-coding queue for the cancer flag.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    ap.add_argument("--labels-dir", default="output/corpora/labels")
+    ap.add_argument("--labels-dir", default="../../output/corpora/labels")
     ap.add_argument("--handcoding-dir",
-                    default="output/corpora/handcoding",
+                    default="../../output/corpora/handcoding",
                     help="only checked to report whether validation exists")
     ap.add_argument("--model", default=None,
                     help="labeller-A model to use; default is the only one present, "

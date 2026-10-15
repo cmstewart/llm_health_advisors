@@ -27,7 +27,7 @@ responders ignored the subject entirely.
 
 Output
 ------
-  output/corpora/export/first_responder_roles.csv
+  ../../output/corpora/export/first_responder_roles.csv
       one row per thread, joinable to topic_labels.csv on submission_id
 
 Usage
@@ -184,9 +184,9 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description="Map first responders to roles and specialties.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    ap.add_argument("--labels", default="output/corpora/export/topic_labels.csv")
-    ap.add_argument("--corpora-dir", default="../Piloting/Round 2")
-    ap.add_argument("--out", default="output/corpora/export/first_responder_roles.csv")
+    ap.add_argument("--labels", default="../../output/corpora/export/topic_labels.csv")
+    ap.add_argument("--corpora-dir", default="../../../Piloting/Round 2")
+    ap.add_argument("--out", default="../../output/corpora/export/first_responder_roles.csv")
     args = ap.parse_args()
 
     corp = Path(args.corpora_dir)

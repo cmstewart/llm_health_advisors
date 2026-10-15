@@ -29,7 +29,7 @@ the easy cases flatters the classifier.
 Usage
 -----
   python score_handcoding.py
-  python score_handcoding.py --adjudicated output/corpora/handcoding/adjudication_queue.csv
+  python score_handcoding.py --adjudicated ../../output/corpora/handcoding/adjudication_queue.csv
 """
 
 from __future__ import annotations
@@ -251,8 +251,8 @@ def main() -> None:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     ap.add_argument("--handcoding-dir",
-                    default="output/corpora/handcoding")
-    ap.add_argument("--labels-dir", default="output/corpora/labels")
+                    default="../../output/corpora/handcoding")
+    ap.add_argument("--labels-dir", default="../../output/corpora/labels")
     ap.add_argument("--model", default="gemini", help="classifier whose labels to score")
     ap.add_argument("--adjudicated", default=None, metavar="CSV",
                     help="completed adjudication_queue.csv; its 'adjudicated' column "

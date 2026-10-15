@@ -1,6 +1,6 @@
 # Topic labels for the r/AskDocs real-vs-synthetic analysis
 
-Generated 2026-10-11 from `topic_labels.csv`. 6,600 posts.
+Generated 2026-10-15 from `topic_labels.csv`. 6,600 posts.
 
 Join to the analysis dataset on `submission_id`. Same corpus and same seed (42) as the generation run, so the ids line up exactly.
 

@@ -52,9 +52,9 @@ This README and `5_exploratory_analysis.ipynb` beside it are the record of the
 root, with the 6,600-thread work it grew into:
 
 - `5_exploratory_analysis.ipynb` — the analysis above, with outputs
-- `src/build_analysis_dataset.py` — merges corpus and generated output into one analysis file
-- `src/build_review_spreadsheet.py` — builds a per-thread review spreadsheet for manual reading
-- `src/topic_classification_plan.md` — the topic labelling decision log
+- `src/Analysis/build_analysis_dataset.py` — merges corpus and generated output into one analysis file
+- `src/Analysis/build_review_spreadsheet.py` — builds a per-thread review spreadsheet for manual reading
+- `src/Covariates/Topics/topic_classification_plan.md` — the topic labelling decision log
 - `src/output/corpora/` — all output from this round and the scale-up
 
 ## Ramping up to 6,600 threads
@@ -83,13 +83,13 @@ this repository**; it is shared separately via Google Drive. Place it in
 To rebuild it from source:
 
 ```bash
-cd src && python build_analysis_dataset.py --gzip
+cd src/Analysis && python build_analysis_dataset.py --gzip
 ```
 
 ## Reproducing the generation
 
-The script lives in `src/` at the repository root, along with everything else from this
-round except this README and the notebook beside it. Its defaults are relative to `src/`
+The script lives in `src/Generation/`, along with everything else from this round except
+this README and the notebook beside it. Its defaults are relative to that directory
 -- the corpus is read from `Piloting/Round 2/`, and output is written under
 `src/output/corpora/` -- so run it from there.
 
@@ -97,7 +97,7 @@ round except this README and the notebook beside it. Its defaults are relative t
 pip install openai tqdm
 export GEMINI_API_KEY=...  OPENAI_API_KEY=...  OPENROUTER_API_KEY=...
 
-cd src   # from the repository root
+cd src/Generation   # from the repository root
 
 # Always estimate first: prints workload and cost, makes no API calls
 python generate_synthetic.py --dry-run --n-ops 3000

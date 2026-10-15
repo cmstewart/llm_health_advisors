@@ -276,9 +276,9 @@ def main() -> None:
                          "generation seed so the two cannot be confused")
     ap.add_argument("--taxonomy", default="taxonomy.json")
     ap.add_argument("--from-analysis-dataset", default=None, metavar="PATH")
-    ap.add_argument("--corpora-dir", default="../Piloting/Round 2")
-    ap.add_argument("--out-dir", default="output/corpora/handcoding")
-    ap.add_argument("--labels-dir", default="output/corpora/labels",
+    ap.add_argument("--corpora-dir", default="../../../Piloting/Round 2")
+    ap.add_argument("--out-dir", default="../../output/corpora/handcoding")
+    ap.add_argument("--labels-dir", default="../../output/corpora/labels",
                     help="only read to report overlap; never written into the workbooks")
     ap.add_argument("--n-ops", type=int, default=6600,
                     help="the classification sample the 200 are drawn from")

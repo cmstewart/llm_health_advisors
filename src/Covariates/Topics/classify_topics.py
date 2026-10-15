@@ -53,7 +53,7 @@ Usage
 
   # Both tasks over the analysis dataset
   python classify_topics.py \
-      --from-analysis-dataset "output/corpora/analysis_dataset_6600.jsonl"
+      --from-analysis-dataset "../../output/corpora/analysis_dataset_6600.jsonl"
 
   # Discipline only, and with a second model as an LLM-vs-LLM check
   python classify_topics.py --tasks discipline --models gemini,openai
@@ -86,7 +86,11 @@ except ImportError:
     tqdm = None
 
 # Reuse the generation run's corpus filters and seeded sampling verbatim, so the
-# classified OP set cannot drift from the generated one.
+# classified OP set cannot drift from the generated one. generate_synthetic.py
+# lives in src/Generation/, a sibling of this directory, so it has to be put on
+# the path before importing -- it is the experiment itself, not a covariate, and
+# filing it under Covariates/ to shorten this import would misdescribe it.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "Generation"))
 from generate_synthetic import PROVIDERS, load_corpus, select_sample
 
 TASKS = ("discipline", "cancer")
@@ -853,9 +857,9 @@ def parse_args(argv=None):
     p.add_argument("--from-analysis-dataset", default=None, metavar="PATH",
                    help="read the OP set from the analysis dataset (exact id match; "
                         "preferred over re-deriving it)")
-    p.add_argument("--corpora-dir", default="../Piloting/Round 2",
+    p.add_argument("--corpora-dir", default="../../../Piloting/Round 2",
                    help="used when --from-analysis-dataset is not given")
-    p.add_argument("--out-dir", default="output/corpora/labels",
+    p.add_argument("--out-dir", default="../../output/corpora/labels",
                    help="where label checkpoints are written")
     p.add_argument("--models", default="gemini",
                    help="comma-separated labeller-A models: gemini,openai,grok. More "

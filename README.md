@@ -23,8 +23,9 @@ All current work lives in [`src/`](src/) — code, documentation and output toge
 | Looking for | It's in |
 |---|---|
 | **Topic labels for the 6,600 threads** (the current deliverable) | `src/output/corpora/export/` |
-| The topic classification pipeline and what it did | [`src/`](src/) — start with its [README](src/README.md) |
-| The current generation script | `src/generate_synthetic.py` |
+| The topic classification pipeline and what it did | [`src/Covariates/Topics/`](src/Covariates/Topics/) — start with its [README](src/Covariates/Topics/README.md) |
+| Whether the first responder's specialty matches the topic | [`src/Covariates/Topic-Clinician-Match/`](src/Covariates/Topic-Clinician-Match/) |
+| The generation script | `src/Generation/generate_synthetic.py` |
 | The hand-annotated 200-post sample and its adjudication | `src/output/corpora/handcoding/` |
 | Findings from the 3,000-thread run | [`Piloting/Round 5/README.md`](Piloting/Round%205/README.md) |
 | The corpus itself (gitignored, shared separately) | `Piloting/Round 2/*.jsonl` |
@@ -41,28 +42,33 @@ Two things worth knowing before you go looking:
   small enough to track, and checked in.
 
 ```
-src/                             # ALL current work: code, docs and output
-  README.md                      # what the classification did and why -- read this first
-  topic_classification_plan.md   # the full decision log
-  taxonomy.json                  # the 17 disciplines and the codebook rules
-  classify_topics.py             # LLM labeller
-  build_handcoding_sheets.py     # blind annotation workbooks (200-post sample)
-  score_handcoding.py            # agreement, reference standard, model accuracy
-  agreement.py                   # cancer consensus, prevalence, power
-  export_labels.py               # produces the deliverable
-  build_analysis_dataset.py      # merges corpus + generated output
-  build_review_spreadsheet.py    # per-thread spreadsheet for manual reading
-  generate_synthetic.py          # the generation script
-  sweep.sh                       # re-runs the labeller until the corpus is done
-  SCALEUP_6600.md                # runbook for the 6,600-thread generation
-  power_analysis.md              # why 6,600 rather than 3,000
-  5_exploratory_analysis_6600.ipynb
-  output/corpora/                # output (mostly gitignored)
-    export/                      #   the topic labels -- checked in
-    handcoding/                  #   the 200-post sample and its adjudication -- checked in
-    labels/ generated/           #   raw model output -- gitignored
+src/                                  # all current work, by what it produces
+  README.md                           #   map of the four folders
+  Generation/                         # the experiment: synthetic comment generation
+    generate_synthetic.py
+    SCALEUP_6600.md                   #   runbook for the 6,600-thread run
+    power_analysis.md                 #   why 6,600 rather than 3,000
+  Covariates/                         # variables for the downstream model
+    Topics/                           #   17-discipline label per thread
+      README.md                       #     what it did and why -- read this first
+      topic_classification_plan.md    #     the full decision log
+      taxonomy.json                   #     the 17 disciplines and the codebook rules
+      classify_topics.py              #     LLM labeller
+      build_handcoding_sheets.py      #     blind annotation workbooks
+      score_handcoding.py             #     agreement and model accuracy
+      agreement.py export_labels.py sweep.sh
+    Topic-Clinician-Match/            #   does the first responder's specialty fit?
+      map_responder_roles.py
+  Analysis/
+    build_analysis_dataset.py         #   merges corpus + generated output
+    build_review_spreadsheet.py
+    5_exploratory_analysis_6600.ipynb
+  output/corpora/                     # shared output
+    export/                           #   deliverables -- checked in
+    handcoding/                       #   the 200-post sample -- checked in
+    labels/ generated/                #   raw model output -- gitignored
 
-Piloting/                        # history; not maintained
+Piloting/                             # history; not maintained
   Round 1/   corpus construction from Arctic Shift .zst archives; requirements.txt
   Round 2/   the built corpus (gitignored JSONL) and an early generation notebook
   Round 3/   DG / SAG / SAGII prompting strategies introduced
@@ -104,7 +110,8 @@ pip install -r "Piloting/Round 1/requirements.txt"
 
 The generation and classification scripts additionally need `openai`, `tqdm` and
 `openpyxl`, plus API keys in the environment — `GEMINI_API_KEY`, `OPENAI_API_KEY`,
-`OPENROUTER_API_KEY`. `src/sweep.sh` reads them from `src/.env`, which is gitignored.
+`OPENROUTER_API_KEY`. `src/Covariates/Topics/sweep.sh` reads them from `src/.env`, which
+is gitignored.
 
 ## Collaborators
 

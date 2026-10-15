@@ -59,13 +59,13 @@ From your local `src/`:
 gcloud compute scp --zone=us-central1-a generate_synthetic.py askdocs-gen:~/
 
 gcloud compute scp --zone=us-central1-a \
-  "../Piloting/Round 2/submissions_corpus.jsonl" \
-  "../Piloting/Round 2/comments_corpus.jsonl" \
+  "../../Piloting/Round 2/submissions_corpus.jsonl" \
+  "../../Piloting/Round 2/comments_corpus.jsonl" \
   askdocs-gen:~/corpora/
 
 # The checkpoints. Skipping this step costs you ~$150 in regenerated work.
 gcloud compute scp --zone=us-central1-a \
-  "output/corpora/generated/"*.jsonl \
+  "../output/corpora/generated/"*.jsonl \
   askdocs-gen:~/generated/
 ```
 
@@ -139,15 +139,16 @@ print('TOTAL defective:', t)
 Nine files at 6,600 records each. Then, from your Mac:
 
 ```bash
-gcloud compute scp --recurse --zone=us-central1-a askdocs-gen:~/generated "output/corpora/"
+gcloud compute scp --recurse --zone=us-central1-a askdocs-gen:~/generated "../output/corpora/"
 gcloud compute instances delete askdocs-gen --zone=us-central1-a
 ```
 
 ### 7. Rebuild the analysis inputs
 
-These two scripts live alongside this one in `src/`:
+These two scripts are in `src/Analysis/`:
 
 ```bash
+cd ../Analysis
 python build_analysis_dataset.py --gzip
 python build_review_spreadsheet.py --n-ops 10
 ```
