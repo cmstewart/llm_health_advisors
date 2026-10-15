@@ -32,6 +32,7 @@ build/
 
 # OS files
 .DS_Store
+~$*            # Excel lock files
 Thumbs.db
 
 # Logs
