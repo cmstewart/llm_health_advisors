@@ -1,0 +1,14 @@
+field,n,median,p10,p90,min,max
+age_years,5824,25.0,16.0,41.0,0.0,98.0
+height_cm,1895,167.6,154.9,182.9,51.0,213.4
+weight_kg,2248,66.7,40.0,104.3,2.0,254.0
+bmi,1524,23.8,18.0,34.7,8.2,67.1
+sex,3400,female,,0.6209,,
+sex,2076,male,,0.3791,,
+smoker,446,no,,0.6019,,
+smoker,295,yes,,0.3981,,
+drinker,161,yes,,0.5279,,
+drinker,144,no,,0.4721,,
+subject,4871,first_person,,0.738,,
+subject,1073,unknown,,0.1626,,
+subject,656,third_party,,0.0994,,
