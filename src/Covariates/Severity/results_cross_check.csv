@@ -1,0 +1,6 @@
+level,threads,red_flag_pct,care_escalated_pct,median_hours_to_first_response
+self_care,950,1.5,3.6,0.53
+routine,2204,1.5,8.5,0.91
+urgent,2121,2.3,15.8,0.82
+emergency,841,9.9,24.7,0.56
+not_applicable,483,3.3,16.4,0.52

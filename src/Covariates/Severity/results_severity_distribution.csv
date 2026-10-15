@@ -1,0 +1,6 @@
+level,score,threads,share
+self_care,1,950,0.144
+routine,2,2204,0.334
+urgent,3,2121,0.3214
+emergency,4,841,0.1274
+not_applicable,,483,0.0732
