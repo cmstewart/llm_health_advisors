@@ -1,0 +1,13 @@
+specialty_discipline,threads,distinct_authors,matched,match_rate,topic_base_rate,lift
+Dermatology,528,2,383,0.7254,0.1083,6.7
+Gastroenterology,109,1,77,0.7064,0.1077,6.56
+Hematology and immunology,108,2,46,0.4259,0.0494,8.62
+Pulmonology,92,2,28,0.3043,0.0264,11.54
+Psychiatry and mental health,84,8,32,0.381,0.0903,4.22
+Neurology,83,9,27,0.3253,0.0795,4.09
+Cardiovascular,79,4,37,0.4684,0.0755,6.21
+"Endocrinology, nutrition, and metabolism",22,3,3,0.1364,0.0665,2.05
+Genitourinary and reproductive health,16,5,11,0.6875,0.1053,6.53
+Musculoskeletal and connective tissue conditions,6,3,2,0.3333,0.0548,6.08
+Otolaryngology,3,3,1,0.3333,0.0426,7.83
+ALL,1130,42,647,0.5726,0.0889,6.44

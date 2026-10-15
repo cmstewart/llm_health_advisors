@@ -28,7 +28,14 @@ responders ignored the subject entirely.
 Output
 ------
   ../../output/corpora/export/first_responder_roles.csv
-      one row per thread, joinable to topic_labels.csv on submission_id
+      one row per thread, joinable to topic_labels.csv on submission_id. Lives
+      with the other deliverables so the analyst collects everything from one
+      directory.
+
+  results_roles.csv, results_specialty_match.csv
+      the two summary tables, written beside this script so the findings are
+      visible in the folder rather than only in a terminal. Regenerated on every
+      run, so they cannot drift from the data.
 
 Usage
 -----
@@ -187,6 +194,8 @@ def main() -> None:
     ap.add_argument("--labels", default="../../output/corpora/export/topic_labels.csv")
     ap.add_argument("--corpora-dir", default="../../../Piloting/Round 2")
     ap.add_argument("--out", default="../../output/corpora/export/first_responder_roles.csv")
+    ap.add_argument("--results-dir", default=".",
+                    help="where the two summary tables are written")
     args = ap.parse_args()
 
     corp = Path(args.corpora_dir)
@@ -220,9 +229,18 @@ def main() -> None:
     print(f"wrote {out}  ({len(rows):,} rows)\n")
 
     # ---- report ----------------------------------------------------------
+    res = Path(args.results_dir)
+    res.mkdir(parents=True, exist_ok=True)
+
     print("=== who answers first ===")
-    for r, n in Counter(x["responder_role"] for x in rows).most_common():
+    role_counts = Counter(x["responder_role"] for x in rows).most_common()
+    for r, n in role_counts:
         print(f"  {r:<22} {n:>5}  {100*n/len(rows):>5.1f}%")
+    with open(res / "results_roles.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["role", "threads", "share_of_threads"])
+        for r, n in role_counts:
+            w.writerow([r, n, round(n / len(rows), 4)])
 
     print("\n=== is a specialty declared? ===")
     for k, n in Counter(x["specialty_kind"] for x in rows).most_common():
@@ -250,6 +268,7 @@ def main() -> None:
     by_spec = defaultdict(list)
     for x in testable:
         by_spec[x["specialty_discipline"]].append(x)
+    summary = []
     for disc, xs in sorted(by_spec.items(), key=lambda kv: -len(kv[1])):
         m = sum(1 for x in xs if x["specialty_matches_topic"] is True)
         b = base[disc] / n_all
@@ -257,6 +276,25 @@ def main() -> None:
         lift = (m / len(xs)) / b if b else float("nan")
         print(f"  {disc[:28]:<28} {len(xs):>4} {authors:>8} "
               f"{100*m/len(xs):>6.1f}% {100*b:>6.1f}% {lift:>5.1f}x")
+        summary.append({
+            "specialty_discipline": disc,
+            "threads": len(xs),
+            "distinct_authors": authors,
+            "matched": m,
+            "match_rate": round(m / len(xs), 4),
+            "topic_base_rate": round(b, 4),
+            "lift": round(lift, 2),
+        })
+    with open(res / "results_specialty_match.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(summary[0]))
+        w.writeheader()
+        w.writerows(summary)
+        w.writerow({"specialty_discipline": "ALL", "threads": len(testable),
+                    "distinct_authors": len({x["responder_author"] for x in testable}),
+                    "matched": matched, "match_rate": round(matched/len(testable), 4),
+                    "topic_base_rate": round(exp/len(testable), 4),
+                    "lift": round(matched/exp, 2)})
+    print(f"\n  wrote {res/'results_roles.csv'} and {res/'results_specialty_match.csv'}")
 
     print("\n  'authors' is the number of distinct accounts behind each row count.")
     print("  Where it is small the figure describes those individuals, not the")

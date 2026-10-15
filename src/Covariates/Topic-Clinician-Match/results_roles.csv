@@ -1,0 +1,12 @@
+role,threads,share_of_threads
+Physician,5242,0.7942
+Nurse,435,0.0659
+Medical student,342,0.0518
+Allied health,164,0.0248
+Unflaired,152,0.023
+Nurse practitioner,128,0.0194
+Pharmacist,64,0.0097
+Other,34,0.0052
+Physician assistant,22,0.0033
+Psychologist,14,0.0021
+Dentist,3,0.0005
